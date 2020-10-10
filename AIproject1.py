@@ -1,3 +1,4 @@
-print('Hello Project 1') 
-print('project one check1')
-print ("checking git changes")
+rows, cols = (7,5)
+arr = [[0]*cols]*rows
+
+print(arr) 
