@@ -101,11 +101,30 @@ def move(matrix, dir):
     count += mSize
     return True
 
+"""
+Harder to Traverse Cells 
+--------------------------
+8 Random Cords 
+-31x31 region centered around Random Cords
+-50% chance for each cell to be hard to traverse 
+"""
 
 rows, cols = (120, 160)
 arr = [[1] * cols] * rows
 
 matrix = [["1" for i in range(cols)] for j in range(rows)]
+
+regions = 0
+while regions < 8:
+    hX = random.randint(0,119)
+    hY = random.randint(0,159)
+    if hX - 16 >= 0 and hX + 15 <= 119 and hY - 16 >= 0 and hY + 15 <= 159:
+        for i in range(hX-16, hX+16):
+            for j in range(hY-16, hX+15):
+                r = random.randint(0,2)
+                if r is 0:
+                    matrix[i][j] = "2"
+            regions+=1
 
 """
 Select 4 Paths
