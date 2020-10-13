@@ -1,6 +1,8 @@
 import math
 import random
 
+import numpy as np
+
 """
 ◦ Use ’0’ to indicate a blocked cell
 ◦ Use ’1’ to indicate a regular unblocked cell
@@ -232,3 +234,8 @@ while True:
         attempts += 1
 
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+
+matrix = np.array(matrix)
+np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+with open("test.txt", 'w') as f:
+    f.write(np.array2string(matrix, separator=', '))
