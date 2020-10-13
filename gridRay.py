@@ -75,7 +75,7 @@ def move(matrix, dir):
             if y - mSize - 1 < 0:
                 mSize = y + 1
             for i in range(1, mSize):
-                if matrix[x][y - i] == "a" or matrix[x][y + i] == "b":
+                if matrix[x][y - i] == "a" or matrix[x][y - i] == "b":
                     return False
                 if matrix[x][y - i] == "1":
                     matrix[x][y - i] = "a"
@@ -86,7 +86,7 @@ def move(matrix, dir):
             if mSize - 1 + x >= 119:
                 mSize = 119 - x
             for i in range(1, mSize):
-                if matrix[x + i][y] == "a" or matrix[x][y + i] == "b":
+                if matrix[x + i][y] == "a" or matrix[x+i][y] == "b":
                     return False
                 if matrix[x + i][y] == "1":
                     matrix[x + i][y] = "a"
@@ -97,7 +97,7 @@ def move(matrix, dir):
             if x - mSize - 1 < 0:
                 mSize = x + 1
             for i in range(1, mSize):
-                if matrix[x - i][y] == "a" or matrix[x][y + i] == "b":
+                if matrix[x - i][y] == "a" or matrix[x-i][y] == "b":
                     return False
                 if matrix[x - i][y] == "1":
                     matrix[x - i][y] = "a"
@@ -106,9 +106,9 @@ def move(matrix, dir):
             x = x + mSize - 1
     except IndexError as e:
         print(e)
-        print(x)
-        print(y)
-        print(mSize)
+        print("X is: " + str(x))
+        print("y is: " + str(y))
+        print("mSize is: " + str(mSize))
     count += mSize
     return True
 
@@ -156,9 +156,6 @@ while paths < 4:
     y = random.randint(0, 159)
     count = 0
     first = True
-    print("Paths: " + str(paths) + " Count: " + str(count))
-    print("This is y: " + str(y))
-    print("This is X: " + str(x))
     if x > y:
         x = 0
         direction = "E"
@@ -177,12 +174,8 @@ while paths < 4:
             first = False
             attempts = 0
 
-        if attempts > 5:
-            # Check if the highway is completely blocked, if it's not then just reset attempts
-            if move(matrix, "N") or move(matrix, "S") or move(matrix, "E") or move(matrix,"S"):
-                attempts = 0
-            else:
-                break
+        if attempts > 5 or direction is None:
+            break
     if count > 100:
         paths += 1
 
