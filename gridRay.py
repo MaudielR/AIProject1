@@ -8,14 +8,136 @@ import random
 ◦ Use ’b’ to indicate a hard to traverse cell with a highway  
 """
 
-rows, cols = (120, 160)
-arr = [[1] * cols] * rows
 
-matrix = [["0" for i in range(cols)] for j in range(rows)]
+# Use to build highway
+def build_highway(prevMatrix, dir):
+    global x
+    global y
+    # print("Build and X is " +str(x)+ " while y is " + str(y))
+    if (x >= 119 or y >= 159 or y <= 0 or x <= 0) and not first:
+        return "F"
+    curMatrix = prevMatrix
+    rC = random.randint(0, 100)
+    if rC < 60:
+        built = move(prevMatrix, dir)
+        if built:
+            return dir
+        else:
+            prevMatrix[:] = curMatrix
+            return "R"
+    elif rC > 60 or first :
+        if dir == "N":
+            if move(prevMatrix, "E"):
+                return "E"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
+        elif dir == "S":
+            if move(prevMatrix, "W"):
+                return "W"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
+        elif dir == "E":
+            if move(prevMatrix, "S"):
+                return "S"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
+        elif dir == "W":
+            if move(prevMatrix, "N"):
+                return "N"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
+
+
+def move(matrix, dir):
+    global x
+    global y
+    global count
+    global first
+    # print("Move and X is " +str(x)+ " while y is " + str(y))
+    mSize = 21
+    try:
+        if dir == "N":
+            if mSize - 1 + y >= 159:
+                mSize = 159 - y
+            for i in range(1, mSize):
+                if matrix[x][y + i] == "a" or matrix[x][y + i] == "b":
+                    return False
+                if matrix[x][y + i] == "1":
+                    matrix[x][y + i] = "a"
+                else:
+                    matrix[x][y + i] = "b"
+            y = y + mSize + 1
+        elif dir == "S":
+            if y - mSize - 1 < 0:
+                mSize = y + 1
+            for i in range(1, mSize):
+                if matrix[x][y - i] == "a" or matrix[x][y + i] == "b":
+                    return False
+                if matrix[x][y - i] == "1":
+                    matrix[x][y - i] = "a"
+                else:
+                    matrix[x][y - i] = "b"
+            y = y - mSize + 1
+        elif dir == "E":
+            if mSize - 1 + x >= 119:
+                mSize = 119 - x
+            for i in range(1, mSize):
+                if matrix[x + i][y] == "a" or matrix[x][y + i] == "b":
+                    return False
+                if matrix[x + i][y] == "1":
+                    matrix[x + i][y] = "a"
+                else:
+                    matrix[x + i][y] = "b"
+            x = x + mSize + 1
+        elif dir == "W":
+            if x - mSize - 1 < 0:
+                mSize = x + 1
+            for i in range(1, mSize):
+                if matrix[x - i][y] == "a" or matrix[x][y + i] == "b":
+                    return False
+                if matrix[x - i][y] == "1":
+                    matrix[x - i][y] = "a"
+                else:
+                    matrix[x - i][y] = "b"
+            x = x + mSize - 1
+    except IndexError as e:
+        print(e)
+        print(x)
+        print(y)
+        print(mSize)
+    count += mSize
+    return True
+
 
 """
+Harder to Traverse Cells 
+--------------------------
+8 Random Cords 
+-31x31 region centered around Random Cords
+-50% chance for each cell to be hard to traverse 
+"""
 
-Select 4 Paths
+matrix = [["1" for i in range(120)] for j in range(160)]
+centers = []
+regions = 0
+while regions < 8:
+    hX = random.randint(0, 119)
+    hY = random.randint(0, 159)
+    if hX - 16 >= 0 and hX + 15 <= 119 and hY - 16 >= 0 and hY + 15 <= 159:
+        for i in range(hX - 16, hX + 16):
+            for j in range(hY - 16, hX + 15):
+                r = random.randint(0, 2)
+                if r == 0:
+                    matrix[i][j] = "2"
+        regions += 1
+        centers.append((hX, hY))
+
+"""
+Select 4 Patths
 ----------------
 -4 Random Cells at the boundary of the grid world 
 -Move 20 cells H/V away from the boundary, this sequence of cells is a highway
@@ -27,39 +149,42 @@ Select 4 Paths
 
 """
 
-# A lot of what is done here is purely for randomization
-for i in range(0, 4):
+paths = 0
+while paths < 4:
     # Random starting cords
     x = random.randint(0, 119)
     y = random.randint(0, 159)
-    # Random amount of space to move right
-    hX = random.randint(0, 21)
-    # Random amount of space to move up
-    hY = 20 - hX
-    print("This is hY: " + str(hY))
-    print("This is hX: " + str(hX))
+    count = 0
+    first = True
+    print("Paths: " + str(paths) + " Count: " + str(count))
     print("This is y: " + str(y))
     print("This is X: " + str(x))
     if x > y:
-        for j in range(0, hX):
-            x += 1
-            if x >= 119:
-                x = 119
-                hY += hX - j
-                break
-            matrix[x][0] = "a"
-        for j in range(1, hY):
-            matrix[x][j] = "a"
+        x = 0
+        direction = "E"
     else:
-        for j in range(0, hY):
-            y += 1
-            if y >= 159:
-                y = 159
-                hX += hY - j
+        y = 0
+        direction = "N"
+    attempts = 0
+    while direction != "F":
+        print(count)
+        oldDir = direction
+        direction = build_highway(matrix, direction)
+        if direction == "R":
+            attempts += 1
+            direction = oldDir
+        else:
+            first = False
+            attempts = 0
+
+        if attempts > 5:
+            # Check if the highway is completely blocked, if it's not then just reset attempts
+            if move(matrix, "N") or move(matrix, "S") or move(matrix, "E") or move(matrix,"S"):
+                attempts = 0
+            else:
                 break
-            matrix[0][y] = "a"
-        for j in range(1, hX):
-            matrix[j][y] = "a"
+    if count > 100:
+        paths += 1
 
 """
 (After Select Paths)
@@ -134,7 +259,5 @@ while regions != 0:
   regions = regions-1
 
 """
+
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
-
-
-
