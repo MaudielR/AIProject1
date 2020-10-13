@@ -17,43 +17,68 @@ class Node():
   def __init__(self, parentNode, positon):
     self.parentNode=parentNode
     self.positon = positon
+    
     self.Distance = 0
     self.goal = 0
     self.cost=0
 
 
-class Storing(object):
-  def __init__(self,value,parent,start =0, goal =0):
-    self.children= []
+
 
 #A start search 
-  def Asearch(matrix[][], startPoint,EndPoint):
-    startnode = Node(0,startPoint)
-    startParent = 
+  def Asearch(matrix, startPoint,EndPoint):
+    startParent = Node(0,startPoint)
+    startchild.Distance = 0
+    startchild.goal = 0
+    startchild.cost=0 
     endnode = Node(0,end)
+    end.Distance=0
+    end.goal=0
+    end.count = 0
 
     openlist = []
     closedlist = []
 
     openlist.append(startnode)
 
-# the start point has to be specifically a corner of the graph that is not 1 top 20 rows or bottom 20 rows
-  def StartPoint()
+    #loop list until EndPoint found 
+    while len(openlist) > 0:
 
-# the end point has to be specifically a corner of the graph that is not 1 away from startpoint left-most 20 columns or right-most 20 columns
-  def EndPoint()
+      newcurrent = openlist[0]
+      nodeindex = 0
+      
+      #find current node 
+      for newindex, i in enumerate(openlist):
+        if i.count < newcurrent.count:
+          newcurrent=i
+          nodeindex= newindex
+      openlist.pop(nodeindex)
+      closedlist.append(newcurrent)
+      # if current node = endnode, path found 
+      if newcurrent ==endnode: 
+        Pathfound = []
+        currentnode = newcurrent
+        while currentnode != 0: 
+          Pathfound.append(currentnode.positon)
+          currentnode = currentnode.parentNode 
+        #reversed path
+        return Pathfound[::-1] 
 
-#priority queue that contains the vertices that A* considers to expand
-  def fringe(list)
-#inserts vertex s with key x into the priority queue fringe
-  def fring.Insert(s,x):
+    newChildren []
+    #check all positons, in range, not == 1
+    for allPossiblePositons in [(1,1),(-1,-1),(0,-1),(-1,0),(1,-1),(-1,1),(0,1),(1,0)]
+      allPossiblePositons =(newcurrent.positon[0]+allPossiblePositons[0], newcurrent.positon[1]+ allPossiblePositons[1])
+      
+      #check length and -1 areas 
 
-#Removes vertex s from the priority queue fringe
-  def fring.Remove(s):
-
-#removes a vertex with the smallest key from priority queue fringe and returns it
-  def fring.Pop():
-    return val
-
-# Set of vertices that A* has expanded and ensures that A* expands every vertex at most once.
-  def closedlIst():
+      nextnode = Node(newcurrent,allPossiblePositons)
+      newChildren.append(nextnode)
+    
+    for xelems in newChildren:
+      for yelems in closedlist:
+        if xelems ==closedlist:
+          continue
+    
+      xelems.Distance = newcurrent.Distance + 1
+      xelems.goal =
+      xelems.count
