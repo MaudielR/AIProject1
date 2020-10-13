@@ -67,11 +67,15 @@ class Node():
     newChildren []
     #check all positons, in range, not == 1
     for allPossiblePositons in [(1,1),(-1,-1),(0,-1),(-1,0),(1,-1),(-1,1),(0,1),(1,0)]
-      allPossiblePositons =(newcurrent.positon[0]+allPossiblePositons[0], newcurrent.positon[1]+ allPossiblePositons[1])
+      possition =(newcurrent.positon[0]+allPossiblePositons[0], newcurrent.positon[1]+ allPossiblePositons[1])
       
+      if positon[0]> (len(matrix) -1) or positon[0]< 0 or possition[1] > (len(matrix[len(maze)-1])-1) or possition[1] <0:
+        continue
       #check length and -1 areas 
+      if maze[positon[0]][possition[1]] != 0:
+        continue
 
-      nextnode = Node(newcurrent,allPossiblePositons)
+      nextnode = Node(newcurrent,Positon)
       newChildren.append(nextnode)
     
     for xelems in newChildren:
@@ -80,5 +84,11 @@ class Node():
           continue
     
       xelems.Distance = newcurrent.Distance + 1
-      xelems.goal =
+      xelems.goal = ((xelems.position[0]- endnode.positon[0])**2)+ ((xelems.positon[1]-endnode.positon[1])**2)
       xelems.count
+
+      for elems in openlist:
+        if xelems == openlist and xelems.Distance > openlist.Distance:
+          continue
+      
+      openlist.append(xelems)

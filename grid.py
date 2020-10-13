@@ -1,4 +1,92 @@
+
+import math
 import random
+
+import numpy as np
+
+class Node():
+
+    def __init__(self, parentNode = None, positon = None):
+        self.parentNode=parentNode
+        self.positon = positon
+
+        self.Distance = 0
+        self.goal = 0
+        self.cost=0
+  
+
+#A start search 
+    def Asearch(matrix, startPoint,EndPoint):
+        startParent = Node(None,startPoint)
+        startParent.Distance = 0
+        startParent.goal = 0
+        startParent.cost=0 
+        endnode = Node(None,endPoint)
+        endnode.Distance=0
+        endnode.goal=0
+        endnode.cost = 0
+
+        openlist = []
+        closedlist = []
+
+        openlist.append(startParent)
+
+        print(startPoint)
+        print(openlist.append(startParent))
+        print(len(openlist))
+        print(enumerate(openlist))
+        #loop list until EndPoint found 
+        while len(openlist) > 0:
+
+            newcurrent = openlist[0]
+            nodeindex = 0
+            
+            #find current node 
+            for newindex, i in enumerate(openlist):
+                if i.cost < newcurrent.cost:
+                    newcurrent=i
+                    nodeindex= newindex
+            openlist.pop(nodeindex)
+            closedlist.append(newcurrent)
+            # if current node = endnode, path found 
+            if newcurrent ==endnode: 
+                Pathfound = []
+                currentnode = newcurrent
+                while currentnode != None: 
+                    Pathfound.append(currentnode.positon)
+                    currentnode = currentnode.parentNode 
+                #reversed path
+                return Pathfound[::-1] 
+
+            newChildren= []
+            #check all positons, in range, not == 1
+            for allPossiblePositons in [(1,1),(-1,-1),(0,-1),(-1,0),(1,-1),(-1,1),(0,1),(1,0)]:
+                position =(newcurrent.positon[0]+allPossiblePositons[0], newcurrent.positon[1]+ allPossiblePositons[1])
+            
+                if position[0]> (len(matrix) -1) or position[0]< 0 or position[1] > (len(matrix[len(matrix)-1])-1) or position[1] <0:
+                    continue
+                #check length and -1 areas 
+                if matrix[position[0]][position[1]] != 0:
+                    continue
+
+                nextnode = Node(newcurrent,Positon)
+                newChildren.append(nextnode)
+                
+            for xelems in newChildren:
+                for yelems in closedlist:
+                    if xelems ==closedlist:
+                        continue
+            
+                xelems.Distance = newcurrent.Distance + 1
+                xelems.goal = ((xelems.position[0]- endnode.positon[0])**2)+ ((xelems.positon[1]-endnode.positon[1])**2 )
+                xelems.count = xelems.Distance + xelems.goal
+
+                for elems in openlist:
+                    if xelems == openlist and xelems.Distance > openlist.Distance:
+                        continue
+                
+                openlist.append(xelems)
+                print("I stop here")
 
 """
 ◦ Use ’0’ to indicate a blocked cell
@@ -7,6 +95,13 @@ import random
 ◦ Use ’a’ to indicate a regular unblocked cell with a highway
 ◦ Use ’b’ to indicate a hard to traverse cell with a highway  
 """
+
+def distance(vertices):
+    x1 = vertices[0][0]
+    x2 = vertices[1][0]
+    y1 = vertices[0][0]
+    y2 = vertices[1][1]
+    return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
 
 # Use to build highway
@@ -25,7 +120,7 @@ def build_highway(prevMatrix, dir):
         else:
             prevMatrix[:] = curMatrix
             return "R"
-    elif rC > 60 or first :
+    elif rC > 60 or first:
         if dir == "N":
             if move(prevMatrix, "E"):
                 return "E"
@@ -55,14 +150,14 @@ def build_highway(prevMatrix, dir):
 def move(matrix, dir):
     global x
     global y
-    global count 
+    global count
     global first
     # print("Move and X is " +str(x)+ " while y is " + str(y))
     mSize = 21
     try:
         if dir == "N":
             if mSize - 1 + y >= 119:
-                mSize = 159 - y
+                mSize = 119 - y
             for i in range(1, mSize):
                 if matrix[x][y + i] == "a" or matrix[x][y + i] == "b":
                     return False
@@ -84,9 +179,9 @@ def move(matrix, dir):
             y = y - mSize + 1
         elif dir == "E":
             if mSize - 1 + x >= 159:
-                mSize = 119 - x
+                mSize = 159 - x
             for i in range(1, mSize):
-                if matrix[x + i][y] == "a" or matrix[x+i][y] == "b":
+                if matrix[x + i][y] == "a" or matrix[x + i][y] == "b":
                     return False
                 if matrix[x + i][y] == "1":
                     matrix[x + i][y] = "a"
@@ -97,7 +192,7 @@ def move(matrix, dir):
             if x - mSize - 1 < 0:
                 mSize = x + 1
             for i in range(1, mSize):
-                if matrix[x - i][y] == "a" or matrix[x-i][y] == "b":
+                if matrix[x - i][y] == "a" or matrix[x - i][y] == "b":
                     return False
                 if matrix[x - i][y] == "1":
                     matrix[x - i][y] = "a"
@@ -125,8 +220,8 @@ matrix = [["1" for i in range(120)] for j in range(160)]
 centers = []
 regions = 0
 while regions < 8:
-    hX = random.randint(0, 159)
-    hY = random.randint(0, 119)
+    hX = random.randint(0, 119)
+    hY = random.randint(0, 159)
     if hX - 16 >= 0 and hX + 15 <= 119 and hY - 16 >= 0 and hY + 15 <= 159:
         for i in range(hX - 16, hX + 16):
             for j in range(hY - 16, hX + 15):
@@ -164,7 +259,6 @@ while paths < 4:
         direction = "N"
     attempts = 0
     while direction != "F":
-        print(count)
         oldDir = direction
         direction = build_highway(matrix, direction)
         if direction == "R":
@@ -187,16 +281,77 @@ Select Blocked Cells > Agents cannot pass through these cells
 **Agents can pass through where blocked cells touch diagonally
 """
 
-"""
+blocked = 0
+while blocked < 3840:
+    x = random.randint(0, 159)
+    y = random.randint(0, 119)
+    if matrix[x][y] == "1" or matrix[x][y] == "2":
+        matrix[x][y] = "0"
+        blocked += 1
 
+"""
 Select Start and Goal
 ----------------------
 >　Start is among unblocked cells, either normal or hard 
 -Must be top 20 or bottom 20, left most 20 columns or right most 20 columns
 > Goal can be any unbocked cell that is > 100 cells away 
 """
-"""
+attempts = 0
+vertices = []
+while True:
+    if len(vertices) == 2:
+        if distance(vertices) > 100:
+            break
+        else:
+            vertices.pop(0)
 
-"""
+    if attempts % 2 == 0:
+        x = random.randint(0, 20)
+        y = random.randint(100, 119)
+    else:
+        x = random.randint(140, 159)
+        y = random.randint(0, 20)
+
+    if matrix[x][y] == "1" or matrix[x][y] == "2" and len(vertices) <= 1:
+        vertices.append((x, x))
+        attempts = 0
+    else:
+        attempts += 1
+
+startPoint = vertices[0]
+endPoint = vertices[1]
+
+
 
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+
+matrix = np.array(matrix)
+
+print(startPoint)
+print(endPoint)
+
+path = Node.Asearch(matrix, startPoint, endPoint)
+print("this is my path")
+print(path)
+
+np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+with open("test.txt", 'w') as f:
+    f.write(np.array2string(matrix, separator=', '))
+
+
+
+
+
+
+
+"""
+-Sstart denotes start vertex
+-Sgoal denotes goal vertex
+-C(s,s') cost of transiton between tow neighboring certices s,s'ES
+-succ(s) the set of seccessors of vertex s in ES 
+
+Step1- Generate a list - 
+Step2- Store Children in Priority Queue based on distance to goal
+Step3 Select Closest child and repeat from sptep 1
+
+"""
