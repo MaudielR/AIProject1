@@ -6,18 +6,20 @@ import numpy as np
 
 class Node():
 
-    def __init__(self, parentNode = None, positon = None):
+    #returns none 
+    def __init__(self, parentNode = None, position = None):
         self.parentNode=parentNode
-        self.positon = positon
+        self.position = position
 
         self.Distance = 0
         self.goal = 0
         self.cost=0
+        
   
 
 #A start search 
     def Asearch(matrix, startPoint,EndPoint):
-        startParent = Node(None,startPoint)
+        new startParent() = Node(None,startPoint)
         startParent.Distance = 0
         startParent.goal = 0
         startParent.cost=0 
@@ -29,16 +31,13 @@ class Node():
         openlist = []
         closedlist = []
 
-        openlist.append(startParent)
-
-        print(startPoint)
-        print(openlist.append(startParent))
-        print(len(openlist))
-        print(enumerate(openlist))
+        openlist.append(startParent())
+       
         #loop list until EndPoint found 
         while len(openlist) > 0:
 
             newcurrent = openlist[0]
+            print(newcurrent)
             nodeindex = 0
             
             #find current node 
@@ -46,6 +45,8 @@ class Node():
                 if i.cost < newcurrent.cost:
                     newcurrent=i
                     nodeindex= newindex
+                print(newcurrent)
+                print(nodeindex)
             openlist.pop(nodeindex)
             closedlist.append(newcurrent)
             # if current node = endnode, path found 
@@ -53,7 +54,7 @@ class Node():
                 Pathfound = []
                 currentnode = newcurrent
                 while currentnode != None: 
-                    Pathfound.append(currentnode.positon)
+                    Pathfound.append(currentnode.position)
                     currentnode = currentnode.parentNode 
                 #reversed path
                 return Pathfound[::-1] 
@@ -61,24 +62,28 @@ class Node():
             newChildren= []
             #check all positons, in range, not == 1
             for allPossiblePositons in [(1,1),(-1,-1),(0,-1),(-1,0),(1,-1),(-1,1),(0,1),(1,0)]:
-                position =(newcurrent.positon[0]+allPossiblePositons[0], newcurrent.positon[1]+ allPossiblePositons[1])
-            
-                if position[0]> (len(matrix) -1) or position[0]< 0 or position[1] > (len(matrix[len(matrix)-1])-1) or position[1] <0:
-                    continue
-                #check length and -1 areas 
-                if matrix[position[0]][position[1]] != 0:
-                    continue
-
-                nextnode = Node(newcurrent,Positon)
-                newChildren.append(nextnode)
+                nextposition =(newcurrent.position[0]+allPossiblePositons[0], newcurrent.position[1]+ allPossiblePositons[1])
                 
-            for xelems in newChildren:
-                for yelems in closedlist:
-                    if xelems ==closedlist:
-                        continue
+                if nextposition[0]> (len(matrix) -1) or nextposition[0]< 0 or nextposition[1] > (len(matrix[len(matrix)-1])-1) or nextposition[1] <0:
+                    print("invalid position")
+                    continue
+                
+                #check length and -1 areas 
+                if matrix[nextposition[0]][nextposition[1]] != 0:
+                    
             
+                    nextnode = Node(newcurrent,nextposition)
+                    newChildren.append(nextnode)
+                    continue
+              
+            for xelems in newChildren: #where it breaks
+                for yelems in closedlist:
+                    if xelems == closedlist:
+                        continue
+                
+                #nodes of f, g and h
                 xelems.Distance = newcurrent.Distance + 1
-                xelems.goal = ((xelems.position[0]- endnode.positon[0])**2)+ ((xelems.positon[1]-endnode.positon[1])**2 )
+                xelems.goal = ((xelems.position[0]- endnode.position[0])**2)+ ((xelems.position[1]-endnode.position[1])**2 )
                 xelems.count = xelems.Distance + xelems.goal
 
                 for elems in openlist:
