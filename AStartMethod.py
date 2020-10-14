@@ -84,7 +84,7 @@ class Node():
           continue
     
       xelems.Distance = newcurrent.Distance + 1
-      xelems.goal = ((xelems.position[0]- endnode.positon[0])**2)+ ((xelems.positon[1]-endnode.positon[1])**2)
+      xelems.goal = ((xelems.position[0]- endnode.positon[0])**2)+ ((xelems.positon[1]-endnode.positon[1])**2 )
       xelems.count
 
       for elems in openlist:

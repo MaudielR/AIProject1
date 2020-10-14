@@ -6,7 +6,7 @@ import numpy as np
 
 class Node():
 
-    #returns none 
+    #none 
     def __init__(self, parentNode = None, position = None):
         self.parentNode=parentNode
         self.position = position
@@ -19,7 +19,8 @@ class Node():
 
 #A start search 
     def Asearch(matrix, startPoint,EndPoint):
-        new startParent() = Node(None,startPoint)
+        #append node
+        startParent = Node(None,startPoint)
         startParent.Distance = 0
         startParent.goal = 0
         startParent.cost=0 
@@ -31,7 +32,7 @@ class Node():
         openlist = []
         closedlist = []
 
-        openlist.append(startParent())
+        openlist.append(startParent)
        
         #loop list until EndPoint found 
         while len(openlist) > 0:
@@ -45,8 +46,7 @@ class Node():
                 if i.cost < newcurrent.cost:
                     newcurrent=i
                     nodeindex= newindex
-                print(newcurrent)
-                print(nodeindex)
+
             openlist.pop(nodeindex)
             closedlist.append(newcurrent)
             # if current node = endnode, path found 
@@ -83,7 +83,7 @@ class Node():
                 
                 #nodes of f, g and h
                 xelems.Distance = newcurrent.Distance + 1
-                xelems.goal = ((xelems.position[0]- endnode.position[0])**2)+ ((xelems.position[1]-endnode.position[1])**2 )
+                xelems.goal = ((endnode.position[0]- xelems.position[0]))+ ((endnode.position[1]-xelems.position[1]))
                 xelems.count = xelems.Distance + xelems.goal
 
                 for elems in openlist:
