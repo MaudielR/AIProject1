@@ -245,5 +245,6 @@ print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 matrix = np.array(matrix)
 
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+print(len(matrix))
 with open("test.txt", 'w') as f:
     f.write(np.array2string(matrix, separator=', '))

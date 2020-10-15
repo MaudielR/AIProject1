@@ -7,16 +7,16 @@ import numpy as np
 class Node():
 
     #none 
-    def __init__(self, parentNode = None, position = None):
+    def __init__(self, parentNode:(), position:()):
         self.parentNode=parentNode
         self.position = position
 
+        #distance to start Node, distance to goal, total cost
         self.Distance = 0
         self.goal = 0
         self.cost=0
         
-  
-
+    
 #A start search 
     def Asearch(matrix, startPoint,EndPoint):
         #append node
@@ -31,17 +31,21 @@ class Node():
 
         openlist = []
         closedlist = []
-
+        
+        #append starter node 
         openlist.append(startParent)
-       
+        print(len(openlist))
+        
+            
         #loop list until EndPoint found 
         while len(openlist) > 0:
-
+            
+            print(len(openlist)) 
             newcurrent = openlist[0]
-            print(newcurrent)
+            
             nodeindex = 0
             
-            #find current node 
+            #find current node, if total cost of i is less than newcurrent cost make newcurrent = i:
             for newindex, i in enumerate(openlist):
                 if i.cost < newcurrent.cost:
                     newcurrent=i
@@ -60,34 +64,37 @@ class Node():
                 return Pathfound[::-1] 
 
             newChildren= []
-            #check all positons, in range, not == 1
+            #check all positons, in range, not = 0
             for allPossiblePositons in [(1,1),(-1,-1),(0,-1),(-1,0),(1,-1),(-1,1),(0,1),(1,0)]:
                 nextposition =(newcurrent.position[0]+allPossiblePositons[0], newcurrent.position[1]+ allPossiblePositons[1])
                 
+                #check if node is not out of bounds
                 if nextposition[0]> (len(matrix) -1) or nextposition[0]< 0 or nextposition[1] > (len(matrix[len(matrix)-1])-1) or nextposition[1] <0:
                     print("invalid position")
                     continue
                 
-                #check length and -1 areas 
-                if matrix[nextposition[0]][nextposition[1]] != 0:
-                    
-            
-                    nextnode = Node(newcurrent,nextposition)
-                    newChildren.append(nextnode)
+                #check 0 areas 
+                if matrix[nextposition[0]][nextposition[1]] == 1 or matrix[nextposition[0]][nextposition[1]] == 'a' or  matrix[nextposition[0]][nextposition[1]] == 'b':
                     continue
-              
+                
+                nextnode = Node(newcurrent,nextposition)
+                newChildren.append(nextnode) 
+                print(nextposition)
+            print(len(newChildren))
+            print(len(closedlist))
             for xelems in newChildren: #where it breaks
                 for yelems in closedlist:
-                    if xelems == closedlist:
+                    if xelems == yelems:
                         continue
-                
-                #nodes of f, g and h
-                xelems.Distance = newcurrent.Distance + 1
-                xelems.goal = ((endnode.position[0]- xelems.position[0]))+ ((endnode.position[1]-xelems.position[1]))
-                xelems.count = xelems.Distance + xelems.goal
+                #I have the cost wrong, must impliment method of : 
 
-                for elems in openlist:
-                    if xelems == openlist and xelems.Distance > openlist.Distance:
+                #nodes of f, g and h
+                xelems.Distance = abs(xelems.position[0] - startParent.position[0]) + abs(xelems.position[1] - startParent.position[1])
+                xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
+                xelems.count = xelems.Distance + xelems.goal
+                
+                for zelems in openlist:
+                    if zelems == xelems and xelems.Distance > zelems.Distance:
                         continue
                 
                 openlist.append(xelems)
