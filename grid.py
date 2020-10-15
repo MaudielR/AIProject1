@@ -3,7 +3,15 @@ import math
 import random
 
 import numpy as np
+"""
+ moving horizontally or vertically between two hard to traverse cells has a cost of 2;
+• moving diagonally between two hard to traverse cells has a cost of sqrt(8);
+• moving horizontally or vertically between a regular unblocked cell and a hard to traverse cell
+(in either direction) has a cost of 1.5;
+• moving diagonally between a regular unblocked cell and a hard to traverse cell (in either
+direction) has a cost of (sqrt(2)+sqrt(8))/2;
 
+"""
 class Node():
 
     #none 
@@ -67,7 +75,8 @@ class Node():
             #check all positons, in range, not = 0
             for allPossiblePositons in [(1,1),(-1,-1),(0,-1),(-1,0),(1,-1),(-1,1),(0,1),(1,0)]:
                 nextposition =(newcurrent.position[0]+allPossiblePositons[0], newcurrent.position[1]+ allPossiblePositons[1])
-                
+                allpossiblePositionsDiagonal = [(1,1), (-1,-1), (1,-1), (-1,1)]
+                allpossiblePositionsHorizontal = [(0,-1), (-1,0), (1,0), (0,1)]
                 #check if node is not out of bounds
                 if nextposition[0]> (len(matrix) -1) or nextposition[0]< 0 or nextposition[1] > (len(matrix[len(matrix)-1])-1) or nextposition[1] <0:
                     print("invalid position")
@@ -76,7 +85,14 @@ class Node():
                 #check 0 areas 
                 if matrix[nextposition[0]][nextposition[1]] == 1 or matrix[nextposition[0]][nextposition[1]] == 'a' or  matrix[nextposition[0]][nextposition[1]] == 'b':
                     continue
-                
+                if matrix[startParent.position[0]][startParent.position[1]] == 2 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsHorizontal)== 2:
+                    startParent.cost + 2
+                if matrix[startParent.position[0]][startParent.position[1]] == 2 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsDiagonal) == 2:
+                    startParent.cost + 2
+                if matrix[startParent.position[0]][startParent.position[1]] == 1 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsHorizontal)== 2:
+                    startParent.cost + 1.5
+                if matrix[startParent.position[0]][startParent.position[1]] == 1 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsDiagonal) == 2:
+                    startParent.cost + (sqrt(2)+sqrt(8))/2
                 nextnode = Node(newcurrent,nextposition)
                 newChildren.append(nextnode) 
                 print(nextposition)
@@ -91,7 +107,7 @@ class Node():
                 #nodes of f, g and h
                 xelems.Distance = abs(xelems.position[0] - startParent.position[0]) + abs(xelems.position[1] - startParent.position[1])
                 xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
-                xelems.count = xelems.Distance + xelems.goal
+                xelems.cost = xelems.Distance + xelems.goal + startParent.cost
                 
                 for zelems in openlist:
                     if zelems == xelems and xelems.Distance > zelems.Distance:
