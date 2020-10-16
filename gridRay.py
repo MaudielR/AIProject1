@@ -104,6 +104,7 @@ class Node():
                 openlist.append(xelems)
                 print("I stop here")
 
+
 # Calculates Distance between two vertices
 def distance(vertices):
     x1 = vertices[0][0]
@@ -213,14 +214,15 @@ def move(matrix, dir):
     count += mSize
     return True
 
-#Unfirom Cost Search
+
+# Unfirom Cost Search
 def ucs(matrix, start, goal):
     visited = set()
     queue = PriorityQueue()
     queue.put((0, start))
 
     while queue:
-        #Unpacks Tuple
+        # Unpacks Tuple
         cost, node = queue.get()
         if node not in visited:
             visited.add(node)
@@ -230,13 +232,14 @@ def ucs(matrix, start, goal):
             for i in getNeighbors(node):
                 if i not in visited:
                     mX, mY = i
-                    #Check for blocked cells
+                    # Check for blocked cells
                     if matrix[mX][mY] != "0":
-                        nodeCost = getCost(matrix,i)
+                        nodeCost = getCost(matrix, i)
                         total_cost = cost + nodeCost
                         queue.put((total_cost, i))
 
-#Node is a tuple of (X,Y)
+
+# Node is a tuple of (X,Y)
 def getNeighbors(node):
     neighbors = set()
     mX, mY = node
@@ -246,36 +249,37 @@ def getNeighbors(node):
     left = True
     if mY == 119:
         top = False;
-        set.add((mX,mY-1))
+        set.add((mX, mY - 1))
     elif mY == 0:
         bottom = False
-        set.add((mX, mY+1))
+        set.add((mX, mY + 1))
     else:
         set.add((mX, mY - 1))
         set.add((mX, mY + 1))
 
     if mX == 159:
         right = False
-        set.add((mX-1, mY))
+        set.add((mX - 1, mY))
     elif mX == 0:
         left = False
-        set.add((mX+1, mY))
+        set.add((mX + 1, mY))
     else:
-        set.add((mX+1, mY))
-        set.add((mX-1, mY))
+        set.add((mX + 1, mY))
+        set.add((mX - 1, mY))
 
     if top:
         if right:
-            set.add((mX + 1, mY+1))
+            set.add((mX + 1, mY + 1))
         if left:
             set.add((mX - 1, mY))
     elif bottom:
         if right:
-            set.add((mX + 1, mY-1))
+            set.add((mX + 1, mY - 1))
         if left:
-            set.add((mX - 1, mY-1))
+            set.add((mX - 1, mY - 1))
 
     return neighbors
+
 
 """
  moving horizontally or vertically between two hard to traverse cells has a cost of 2;
@@ -286,29 +290,54 @@ def getNeighbors(node):
 direction) has a cost of (sqrt(2)+sqrt(8))/2;
 
 """
+
+
 def getCost(matrix, prev, curr):
     mX, mY = prev
     nX, nY = curr
-    #It is diagonal
-    if mX-nX != 0 and mY-nY != 0:
-        if matrix[nX][nY] == "1":
-            return math.sqrt(.5)
-        elif matrix[nX][nY] == "2":
+    # It is diagonal
+    if mX - nX != 0 and mY - nY != 0:
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
             return math.sqrt(2)
-        elif matrix[nX][nY] == "a":
-            return math.sqrt(0.03125)
-        elif matrix[nX][nY] == "b":
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return (math.sqrt(2)+math.sqrt(8))/2
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return math.sqrt(.5)+math.sqrt(.03125)
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return math.sqrt(.5)+math.sqrt(.125)
+        if matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+            return math.sqrt(8)
+        if matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+            return math.sqrt(2) + math.sqrt(.03125)
+        if matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+            return math.sqrt(2) + math.sqrt(.125)
+        if matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
             return math.sqrt(.125)
+        if matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+            return math.sqrt(.03125) + math.sqrt(.125)
+        if matrix[mX][mY] == "b" and matrix[nX][nY] == "b":
+            return math.sqrt(.5)
     else:
-        if matrix[nX][nY] == "1":
-            return .5
-        elif matrix[nX][nY] == "2":
-            return 1
-        elif matrix[nX][nY] == "a":
-            return .125
-        elif matrix[nX][nY] == "b":
-            return .25
-
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
+            return 1;
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return 1.5;
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return .625;
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return .75;
+        if matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+            return 2;
+        if matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+            return 1.125;
+        if matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+            return 1.25;
+        if matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
+            return .25;
+        if matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+            return .375;
+        if matrix[mX][mY] == "b" and matrix[nX][nY] == "b":
+            return .5;
 
 # >> Harder to Traverse Cells
 matrix = [["1" for i in range(120)] for j in range(160)]
@@ -399,8 +428,7 @@ path = Node.Asearch(matrix, startPoint, endPoint)
 print("this is my path")
 print(path)
 
-
-#Save the Grid to a Textfile
+# Save the Grid to a Textfile
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 with open("test.txt", 'w') as f:
     f.write(np.array2string(matrix, separator=', '))
