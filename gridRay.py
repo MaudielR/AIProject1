@@ -218,17 +218,19 @@ def move(matrix, dir):
 # Unfirom Cost Search
 def ucs(matrix, start, goal):
     visited = set()
+    track = {}
     queue = PriorityQueue()
-    queue.put((0, start))
+    queue.put((0, start, 0))
 
     while queue:
-        # Unpacks Tuple
-        cost, node = queue.get()
+        # Unpacks Tuple and gets the cheapest one
+        cost, node, parent = queue.get()
         if node not in visited:
             visited.add(node)
+            track[node] = parent
 
             if node == goal:
-                return
+                 return visited, track, cost
             for i in getNeighbors(node):
                 if i not in visited:
                     mX, mY = i
@@ -245,7 +247,7 @@ def ucs(matrix, start, goal):
                             getCost(matrix, node, i)
                         else:
                             total_cost = cost + nodeCost
-                            queue.put((total_cost, i))
+                            queue.put((total_cost, i, node))
     print("UCS has failed if it reaches this point")
 
 
@@ -431,7 +433,7 @@ startPoint = vertices[0]
 endPoint = vertices[1]
 
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
-matrix = np.array(matrix)
+
 """
 # Start A*
 path = Node.Asearch(matrix, startPoint, endPoint)
@@ -439,8 +441,36 @@ print("this is my path")
 print(path)
 """
 
-ucs(matrix, startPoint, endPoint)
+visited, tracked, cost = ucs(matrix, startPoint, endPoint)
+print(startPoint)
+print(endPoint)
+print(tracked)
+print(cost)
 
+for i in visited:
+    mX, mY = i
+    matrix[mX][mY] = "X"
+
+path = []
+currNode = tracked[endPoint]
+path.append((endPoint))
+while currNode != 0:
+    mX, mY = currNode
+    matrix[mX][mY] = "P"
+    path.append(currNode)
+    currNode = tracked[currNode]
+
+
+sX, sY = startPoint
+eX, eY = endPoint
+
+matrix[sX][sY] = "S"
+matrix [eX][eY] = "E"
+
+
+print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+
+matrix = np.array(matrix)
 # Save the Grid to a Textfile
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 with open("test.txt", 'w') as f:
