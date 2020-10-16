@@ -227,7 +227,7 @@ def ucs(matrix, start, goal):
 
             if node == goal:
                 return visited
-            for i in getNeighbors(matrix,node):
+            for i in getNeighbors(node):
                 if i not in visited:
                     mX, mY = i
                     #Check for blocked cells
@@ -237,28 +237,77 @@ def ucs(matrix, start, goal):
                         queue.put((total_cost, i))
 
 #Node is a tuple of (X,Y)
-def getNeighbors(matrix, node):
+def getNeighbors(node):
     neighbors = set()
     mX, mY = node
+    top = True
+    bottom = True
+    right = True
+    left = True
     if mY == 119:
-        set.add(matrix[mX][mY-1])
+        top = False;
+        set.add((mX,mY-1))
     elif mY == 0:
-        set.add(matrix[mX][mY + 1])
+        bottom = False
+        set.add((mX, mY+1))
     else:
-        set.add(matrix[mX][mY + 1])
-        set.add(matrix[mX][mY - 1])
+        set.add((mX, mY - 1))
+        set.add((mX, mY + 1))
 
     if mX == 159:
-        set.add(matrix[mX-1][mY])
+        right = False
+        set.add((mX-1, mY))
     elif mX == 0:
-        set.add(matrix[mX + 1][mY])
+        left = False
+        set.add((mX+1, mY))
     else:
-        set.add(matrix[mX + 1][mY])
-        set.add(matrix[mX - 1][mY])
+        set.add((mX+1, mY))
+        set.add((mX-1, mY))
+
+    if top:
+        if right:
+            set.add((mX + 1, mY+1))
+        if left:
+            set.add((mX - 1, mY))
+    elif bottom:
+        if right:
+            set.add((mX + 1, mY-1))
+        if left:
+            set.add((mX - 1, mY-1))
+
     return neighbors
 
+"""
+ moving horizontally or vertically between two hard to traverse cells has a cost of 2;
+• moving diagonally between two hard to traverse cells has a cost of sqrt(8);
+• moving horizontally or vertically between a regular unblocked cell and a hard to traverse cell
+(in either direction) has a cost of 1.5;
+• moving diagonally between a regular unblocked cell and a hard to traverse cell (in either
+direction) has a cost of (sqrt(2)+sqrt(8))/2;
 
-def getCost(matrix, node):
+"""
+def getCost(matrix, prev, curr):
+    mX, mY = prev
+    nX, nY = curr
+    #It is diagonal
+    if mX-nX != 0 and mY-nY != 0:
+        if matrix[nX][nY] == "1":
+            return math.sqrt(.5)
+        elif matrix[nX][nY] == "2":
+            return math.sqrt(2)
+        elif matrix[nX][nY] == "a":
+            return math.sqrt(0.03125)
+        elif matrix[nX][nY] == "b":
+            return math.sqrt(.125)
+    else:
+        if matrix[nX][nY] == "1":
+            return .5
+        elif matrix[nX][nY] == "2":
+            return 1
+        elif matrix[nX][nY] == "a":
+            return .125
+        elif matrix[nX][nY] == "b":
+            return .25
 
 
 # >> Harder to Traverse Cells
