@@ -228,15 +228,25 @@ def ucs(matrix, start, goal):
             visited.add(node)
 
             if node == goal:
-                return visited
+                return
             for i in getNeighbors(node):
                 if i not in visited:
                     mX, mY = i
                     # Check for blocked cells
                     if matrix[mX][mY] != "0":
-                        nodeCost = getCost(matrix, i)
-                        total_cost = cost + nodeCost
-                        queue.put((total_cost, i))
+                        nodeCost = getCost(matrix, node, i)
+                        if nodeCost == None:
+                            print("Something odd has occured")
+                            nX, nY = i
+                            print(i)
+                            print(node)
+                            print(matrix[nX][nY])
+                            print(matrix[mX][mY])
+                            getCost(matrix, node, i)
+                        else:
+                            total_cost = cost + nodeCost
+                            queue.put((total_cost, i))
+    print("UCS has failed if it reaches this point")
 
 
 # Node is a tuple of (X,Y)
@@ -249,34 +259,34 @@ def getNeighbors(node):
     left = True
     if mY == 119:
         top = False;
-        set.add((mX, mY - 1))
+        neighbors.add((mX, mY - 1))
     elif mY == 0:
         bottom = False
-        set.add((mX, mY + 1))
+        neighbors.add((mX, mY + 1))
     else:
-        set.add((mX, mY - 1))
-        set.add((mX, mY + 1))
+        neighbors.add((mX, mY - 1))
+        neighbors.add((mX, mY + 1))
 
     if mX == 159:
         right = False
-        set.add((mX - 1, mY))
+        neighbors.add((mX - 1, mY))
     elif mX == 0:
         left = False
-        set.add((mX + 1, mY))
+        neighbors.add((mX + 1, mY))
     else:
-        set.add((mX + 1, mY))
-        set.add((mX - 1, mY))
+        neighbors.add((mX + 1, mY))
+        neighbors.add((mX - 1, mY))
 
     if top:
         if right:
-            set.add((mX + 1, mY + 1))
+            neighbors.add((mX + 1, mY + 1))
         if left:
-            set.add((mX - 1, mY))
+            neighbors.add((mX - 1, mY))
     elif bottom:
         if right:
-            set.add((mX + 1, mY - 1))
+            neighbors.add((mX + 1, mY - 1))
         if left:
-            set.add((mX - 1, mY - 1))
+            neighbors.add((mX - 1, mY - 1))
 
     return neighbors
 
@@ -295,49 +305,49 @@ direction) has a cost of (sqrt(2)+sqrt(8))/2;
 def getCost(matrix, prev, curr):
     mX, mY = prev
     nX, nY = curr
-    # It is diagonal
     if mX - nX != 0 and mY - nY != 0:
         if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
             return math.sqrt(2)
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
-            return (math.sqrt(2)+math.sqrt(8))/2
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
-            return math.sqrt(.5)+math.sqrt(.03125)
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
-            return math.sqrt(.5)+math.sqrt(.125)
-        if matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return (math.sqrt(2) + math.sqrt(8)) / 2
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return math.sqrt(.5) + math.sqrt(.03125)
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return math.sqrt(.5) + math.sqrt(.125)
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
             return math.sqrt(8)
-        if matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
             return math.sqrt(2) + math.sqrt(.03125)
-        if matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
             return math.sqrt(2) + math.sqrt(.125)
-        if matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
             return math.sqrt(.125)
-        if matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
             return math.sqrt(.03125) + math.sqrt(.125)
-        if matrix[mX][mY] == "b" and matrix[nX][nY] == "b":
+        else:
             return math.sqrt(.5)
     else:
         if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
-            return 1;
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
-            return 1.5;
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
-            return .625;
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
-            return .75;
-        if matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
-            return 2;
-        if matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
-            return 1.125;
-        if matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
-            return 1.25;
-        if matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
-            return .25;
-        if matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
-            return .375;
-        if matrix[mX][mY] == "b" and matrix[nX][nY] == "b":
-            return .5;
+            return 1
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return 1.5
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return .625
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return .75
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+            return 2
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+            return 1.125
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+            return 1.25
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
+            return .25
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+            return .375
+        else:
+            return .5
+
 
 # >> Harder to Traverse Cells
 matrix = [["1" for i in range(120)] for j in range(160)]
@@ -412,7 +422,7 @@ while True:
         y = random.randint(0, 20)
 
     if matrix[x][y] == "1" or matrix[x][y] == "2" and len(vertices) <= 1:
-        vertices.append((x, x))
+        vertices.append((x, y))
         attempts = 0
     else:
         attempts += 1
@@ -422,11 +432,14 @@ endPoint = vertices[1]
 
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 matrix = np.array(matrix)
-
+"""
 # Start A*
 path = Node.Asearch(matrix, startPoint, endPoint)
 print("this is my path")
 print(path)
+"""
+
+ucs(matrix, startPoint, endPoint)
 
 # Save the Grid to a Textfile
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
