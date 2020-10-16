@@ -47,18 +47,23 @@ class Node():
             
         #loop list until EndPoint found 
         while len(openlist) > 0:
-            
+            print("ARRAY LENGTH")
             print(len(openlist)) 
             newcurrent = openlist[0]
             
             nodeindex = 0
-            
+            print(newcurrent.position)
+            print(newcurrent.cost)
             #find current node, if total cost of i is less than newcurrent cost make newcurrent = i:
             for newindex, i in enumerate(openlist):
                 if i.cost < newcurrent.cost:
                     newcurrent=i
                     nodeindex= newindex
-
+                    print("i.cost newcurren.cost")
+                    print(i.cost)
+                    print(newcurrent.cost)
+                    print("nodeindex")
+                    print(nodeindex)
             openlist.pop(nodeindex)
             closedlist.append(newcurrent)
             # if current node = endnode, path found 
@@ -77,40 +82,81 @@ class Node():
                 nextposition =(newcurrent.position[0]+allPossiblePositons[0], newcurrent.position[1]+ allPossiblePositons[1])
                 allpossiblePositionsDiagonal = [(1,1), (-1,-1), (1,-1), (-1,1)]
                 allpossiblePositionsHorizontal = [(0,-1), (-1,0), (1,0), (0,1)]
+                print(newcurrent.position[0])
                 #check if node is not out of bounds
-                if nextposition[0]> (len(matrix) -1) or nextposition[0]< 0 or nextposition[1] > (len(matrix[len(matrix)-1])-1) or nextposition[1] <0:
-                    print("invalid position")
+                if nextposition[0]> (len(matrix) -1) or nextposition[1] > (len(matrix[len(matrix)-1])-1):
                     continue
                 
                 #check 0 areas 
-                if matrix[nextposition[0]][nextposition[1]] == 1 or matrix[nextposition[0]][nextposition[1]] == 'a' or  matrix[nextposition[0]][nextposition[1]] == 'b':
+                if (matrix[nextposition[0]][nextposition[1]] == 0): 
                     continue
-                if matrix[startParent.position[0]][startParent.position[1]] == 2 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsHorizontal)== 2:
-                    startParent.cost + 2
-                if matrix[startParent.position[0]][startParent.position[1]] == 2 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsDiagonal) == 2:
-                    startParent.cost + 2
-                if matrix[startParent.position[0]][startParent.position[1]] == 1 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsHorizontal)== 2:
-                    startParent.cost + 1.5
-                if matrix[startParent.position[0]][startParent.position[1]] == 1 and (matrix[nextposition[0]][nextposition[1]] in allpossiblePositionsDiagonal) == 2:
-                    startParent.cost + (sqrt(2)+sqrt(8))/2
+                
+                
+            
+                print(nextposition)
+                if nextposition[0]> (len(matrix) -1) or nextposition[0] < 0 or nextposition[1] > (len(matrix[len(matrix)-1])-1) or nextposition[1] < 0:
+                    continue
                 nextnode = Node(newcurrent,nextposition)
                 newChildren.append(nextnode) 
-                print(nextposition)
+            print(nextposition)
+            print(newcurrent)
             print(len(newChildren))
             print(len(closedlist))
+            print(len(openlist))
+            newcost = 0
             for xelems in newChildren: #where it breaks
                 for yelems in closedlist:
                     if xelems == yelems:
                         continue
-                #I have the cost wrong, must impliment method of : 
-
-                #nodes of f, g and h
-                xelems.Distance = abs(xelems.position[0] - startParent.position[0]) + abs(xelems.position[1] - startParent.position[1])
-                xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
-                xelems.cost = xelems.Distance + xelems.goal + startParent.cost
                 
+                
+                # any movements from 1 to 1 = +1 cost
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0] +1][newcurrent.position[1]+1]== 1 and (newcurrent.position[0]+1,newcurrent.position[1]+1) == xelems.position) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]-1][newcurrent.position[1] -1]== 1 and (newcurrent.position[0]-1,newcurrent.position[1]-1) == xelems.position ) :
+                    newcost = xelems.cost+1
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]+1][newcurrent.position[1]-1]== 1 and (newcurrent.position[0]+1,newcurrent.position[1]-1) == xelems.position) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]-1][newcurrent.position[1] +1]== 1 and (newcurrent.position[0]-1,newcurrent.position[1]+1) == xelems.position) :
+                    return newcost +1
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]][newcurrent.position[1]-1]== 1 and (newcurrent.position[0]+1,newcurrent.position[1]+1) == xelems.position) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]-1][newcurrent.position[1]]== 1 and (newcurrent.position[0]-1,newcurrent.position[1]) == xelems.position) :
+                    return newcost +1
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]+1][newcurrent.position[1]]== 1 and (newcurrent.position[0]+1,newcurrent.position[1]) == xelems.position) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]][newcurrent.position[1] +1]== 1 and (newcurrent.position[0],newcurrent.position[1]+1) == xelems.position) :
+                    return newcost +1
+                #moving horizontally or vertically between two hard to traverse cells has a cost of 2
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]][newcurrent.position[1]-1]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]-1][newcurrent.position[1]]== 1) :
+                    return newcost +2
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]+1][newcurrent.position[1]]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]][newcurrent.position[1] +1]== 1) :
+                    return newcost +2
+
+                #moving diagonally between two hard to traverse cells has a cost of sqrt(8)
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]][newcurrent.position[1]-1]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]-1][newcurrent.position[1]]== 2) :
+                    return newcost +sqrt(8)
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]+1][newcurrent.position[1]]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]][newcurrent.position[1] +1]== 2) :
+                    return newcost +sqrt(8)
+
+                #moving horizontally or vertically between a regular unblocked cell and a hard to traverse cell(in either direction) has a cost of 1.5;      
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0] +1][newcurrent.position[1]+1]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]-1][newcurrent.position[1] -1]== 2) :
+                    return newcost +1.5
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]+1][newcurrent.position[1]-1]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]-1][newcurrent.position[1] +1]== 2) :
+                    return newcost +1.5
+
+                #moving diagonally between a regular unblocked cell and a hard to traverse  has a cost of (sqrt(2)+sqrt(8))/2;
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0] +1][newcurrent.position[1]+1]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]-1][newcurrent.position[1] -1]== 2) :
+                    return newcost +(sqrt(2)+sqrt(8))/2
+                if (matrix[newcurrent.position[0]][newcurrent.position[1]] == 1 and matrix[newcurrent.position[0]+1][newcurrent.position[1]-1]== 2) or (matrix[newcurrent.position[0]][newcurrent.position[1]] == 2 and matrix[newcurrent.position[0]-1][newcurrent.position[1] +1]== 2) :
+                    return newcost +(sqrt(2)+sqrt(8))/2
+
+                
+               
+                #nodes of f, g and h
+                xelems.Distance = abs(xelems.position[0] - closedlist[0].position[0]) + abs(xelems.position[1] - closedlist[0].position[1])
+                xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
+                xelems.cost = xelems.Distance + xelems.goal + newcost
+                print("MY NEW COST")
+                print(newcost)
+                
+                print(xelems.cost)
+                print(xelems.Distance)
+                print(xelems.goal)
                 for zelems in openlist:
-                    if zelems == xelems and xelems.Distance > zelems.Distance:
+                    if xelems == zelems and xelems.Distance >= zelems.Distance and xelems.cost >= zelems.cost:
                         continue
                 
                 openlist.append(xelems)
