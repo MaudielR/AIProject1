@@ -111,7 +111,7 @@ def distance(vertices):
     x2 = vertices[1][0]
     y1 = vertices[0][0]
     y2 = vertices[1][1]
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return math.sqrt(((x2 - x1) ** 2) + ((y2 - y1) ** 2))
 
 
 # Use to build highway
@@ -228,7 +228,6 @@ def ucs(matrix, start, goal):
         if node not in visited:
             visited.add(node)
             track[node] = parent
-
             if node == goal:
                  return visited, track, cost
             for i in getNeighbors(node):
@@ -432,7 +431,7 @@ while True:
 startPoint = vertices[0]
 endPoint = vertices[1]
 
-print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+#print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
 """
 # Start A*
@@ -444,7 +443,7 @@ print(path)
 visited, tracked, cost = ucs(matrix, startPoint, endPoint)
 print(startPoint)
 print(endPoint)
-print(tracked)
+#print(tracked)
 print(cost)
 
 for i in visited:
