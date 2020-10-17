@@ -1,4 +1,4 @@
-
+from queue import PriorityQueue
 import math
 import random
 
@@ -12,6 +12,7 @@ import numpy as np
 direction) has a cost of (sqrt(2)+sqrt(8))/2;
 
 """
+
 class Node():
 
     #none 
@@ -24,7 +25,29 @@ class Node():
         self.goal = 0
         self.cost=0
         
-    
+    def A(matrix, start, goal):
+        fringe = PriorityQueue()
+        fringe.put(start, (start + start))
+        closed = set()
+
+        while fringe:
+            node = fringe.pop()
+            if node == goal:
+                path = []
+                while node.parentNode:
+                    path.append(node)
+                    node = node.parentNode
+                return path
+            closed.add(node)
+            for suc in getNeighbors(node):
+                mX, mY = suc
+                if matrix[mX][mY] != 0:
+                    if suc not in closed:
+                        if suc not in fringe:
+                            suc.goal = sys.maxsize
+                            suc.parentNode = None
+                        matrix.UpdateVertex(matrix,node,suc,fringe)
+        print("Path not found")
 #A start search 
     def Asearch(matrix, startPoint,EndPoint):
         #append node
@@ -36,7 +59,7 @@ class Node():
         endnode.Distance=0
         endnode.goal=0
         endnode.cost = 0
-
+        visited = set()
         openlist = []
         closedlist = []
         
@@ -64,6 +87,7 @@ class Node():
                     print(newcurrent.cost)
                     print("nodeindex")
                     print(nodeindex)
+                    
             openlist.pop(nodeindex)
             closedlist.append(newcurrent)
             # if current node = endnode, path found 
@@ -94,6 +118,7 @@ class Node():
 
                 if nextposition in enumerate(openlist):
                     continue
+                
                 nextnode = Node(newcurrent,nextposition)
                 newChildren.append(nextnode) 
                 
@@ -107,28 +132,24 @@ class Node():
                 for yelems in closedlist:
                     if xelems.position == yelems.position:
                         continue
-                mX = newcurrent.position[0] 
-                mY = newcurrent.position[1]
-                nX = xelems.position[0]
-                nY = xelems.position[1]
-                xelems.cost = getCost(matrix, newcurrent.position, xelems.position)
-                #nodes of f, g and h
-                xelems.Distance = abs(xelems.position[0] - closedlist[0].position[0]) + abs(xelems.position[1] - closedlist[0].position[1])
-                xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
-                xelems.cost = xelems.Distance + xelems.goal + xelems.cost
-                # any movements from 1 to 1 = +1 cost
-                
-                
-
+                    else:
+                        visited.add(xelems)
+                        xelems.cost = getCost(matrix, newcurrent.position, xelems.position)
+                        #nodes of f, g and h
+                        xelems.Distance = abs(xelems.position[0] - closedlist[0].position[0]) + abs(xelems.position[1] - closedlist[0].position[1])
+                        xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
+                        xelems.cost = xelems.Distance + xelems.goal + xelems.cost
+                        # any movements from 1 to 1 = +1 cost
+                    
                 print(xelems.cost)
                 print(xelems.Distance)
                 print(xelems.goal)
-                for zelems in openlist:
-                    if xelems == zelems and xelems.goal >= zelems.goal:
+                for zelems in visited:
+                    if xelems == zelems and xelems.Distance>zelems.Distance:
                         continue
-                    
-                openlist.append(xelems)
-                print("I stop here")
+                    else:
+                        openlist.append(xelems)
+                        
 
 """
 ◦ Use ’0’ to indicate a blocked cell
@@ -413,7 +434,7 @@ endPoint = vertices[1]
 
 
 
-print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+#print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
 matrix = np.array(matrix)
 
@@ -421,6 +442,7 @@ print(startPoint)
 print(endPoint)
 
 path = Node.Asearch(matrix, startPoint, endPoint)
+#path = Node.A(matrix, startPoint, endPoint)
 print("this is my path")
 print(path)
 
