@@ -1,5 +1,6 @@
 import math
 import random
+import sys
 from queue import PriorityQueue
 
 import numpy as np
@@ -13,9 +14,18 @@ class Node():
         self.position = position
 
         # distance to start Node, distance to goal, total cost
-        self.Distance = 0
-        self.goal = 0
+        self.G = 0
+        self.H = 0
         self.cost = 0
+
+    def __eq__(self, other):
+        return self.position == other.position
+
+    def __lt__(self, other):
+        return self.cost < other.cost
+
+    def __hash__(self):
+        return hash(self.cost)
 
     # A start search
     def Asearch(matrix, startPoint, EndPoint):
@@ -109,9 +119,9 @@ class Node():
 def distance(vertices):
     x1 = vertices[0][0]
     x2 = vertices[1][0]
-    y1 = vertices[0][0]
+    y1 = vertices[0][1]
     y2 = vertices[1][1]
-    return math.sqrt(((x2 - x1) ** 2) + ((y2 - y1) ** 2))
+    return math.sqrt((((x2 - x1) ** 2) + ((y2 - y1) ** 2)))
 
 
 # Use to build highway
@@ -214,8 +224,84 @@ def move(matrix, dir):
     count += mSize
     return True
 
+def UpdateVertex(matrix, node, suc, fringe):
+    cost = getCostA(matrix, node, suc)
+    if node.G + cost < suc.G:
+        suc.G = node.G + cost
+        suc.parentNode = node
+        suc.cost = suc.G + suc.cost
+        if suc in fringe.queue:
+            fringe.remove(suc)
+        fringe.put(suc)
 
-# Unfirom Cost Search
+"""def A(matrix, start, goal):
+    fringe = []
+    closed = []
+    nodeStart = Node(None, start)
+    nodeGoal = Node(None, goal)
+    fringe.append(nodeStart)
+    while len(fringe) > 0:
+        fringe.sort()
+        node = fringe.pop(0)
+        if node == nodeGoal:
+            path = []
+            while node != nodeStart:
+                path.append(node.position)
+                node = node.parentNode
+            return path
+        closed.append(node)
+        mX, mY = node.position
+        for x in getNeighborsA(node):
+            if matrix[mX][mY] != "0":
+                suc = Node(node, x)
+            if suc not in closed:
+                if suc not in fringe:
+                    suc.G = sys.maxsize
+                    suc.parentNode = None
+                UpdateVertex(matrix, node, suc, fringe)
+    return None"""
+
+
+def A(matrix, start, goal):
+    fringe = []
+    closed = set()
+    nodeStart = Node(start, start)
+    fringe.append(nodeStart)
+    while fringe:
+        fringe.sort()
+        node = fringe.pop(0)
+        if node not in closed:
+            closed.add(node.position)
+            if node.position == goal:
+                path = []
+                while node != nodeStart:
+                    path.append(node.position)
+                    node = node.parentNode
+                return path
+            n = getNeighborsA(node, closed)
+            for x in n:
+                if x not in closed:
+                    mX, mY = x
+                    if matrix[mX][mY] != "0":
+                        suc = Node(node, x)
+                        if suc not in fringe:
+                            suc.G = sys.maxsize
+                        nodeCost = getCostA(matrix, node, suc)
+                        if node.G + cost < suc.G:
+                            suc.G = node.G + nodeCost
+                            suc.parentNode = node
+                            suc.cost = suc.G + nodeCost
+                            if suc in fringe:
+                                fringe.remove(suc)
+                            fringe.append(suc)
+    return None
+
+"""   suc = Node(node, x)
+   if suc not in fringe.queue:
+       suc.G = sys.maxsize
+   UpdateVertex(matrix, node, suc, fringe)
+"""
+
 def ucs(matrix, start, goal):
     visited = set()
     track = {}
@@ -223,31 +309,21 @@ def ucs(matrix, start, goal):
     queue.put((0, start, 0))
 
     while queue:
-        # Unpacks Tuple and gets the cheapest one
         cost, node, parent = queue.get()
         if node not in visited:
             visited.add(node)
             track[node] = parent
             if node == goal:
-                 return visited, track, cost
+                return visited, track, cost
             for i in getNeighbors(node):
                 if i not in visited:
                     mX, mY = i
                     # Check for blocked cells
                     if matrix[mX][mY] != "0":
                         nodeCost = getCost(matrix, node, i)
-                        if nodeCost == None:
-                            print("Something odd has occured")
-                            nX, nY = i
-                            print(i)
-                            print(node)
-                            print(matrix[nX][nY])
-                            print(matrix[mX][mY])
-                            getCost(matrix, node, i)
-                        else:
-                            total_cost = cost + nodeCost
-                            queue.put((total_cost, i, node))
-    print("UCS has failed if it reaches this point")
+                        total_cost = cost + nodeCost
+                        queue.put((total_cost, i, node))
+    return "UCS has failed if it reaches this point"
 
 
 # Node is a tuple of (X,Y)
@@ -282,7 +358,7 @@ def getNeighbors(node):
         if right:
             neighbors.add((mX + 1, mY + 1))
         if left:
-            neighbors.add((mX - 1, mY))
+            neighbors.add((mX - 1, mY + 1))
     elif bottom:
         if right:
             neighbors.add((mX + 1, mY - 1))
@@ -292,15 +368,49 @@ def getNeighbors(node):
     return neighbors
 
 
-"""
- moving horizontally or vertically between two hard to traverse cells has a cost of 2;
-• moving diagonally between two hard to traverse cells has a cost of sqrt(8);
-• moving horizontally or vertically between a regular unblocked cell and a hard to traverse cell
-(in either direction) has a cost of 1.5;
-• moving diagonally between a regular unblocked cell and a hard to traverse cell (in either
-direction) has a cost of (sqrt(2)+sqrt(8))/2;
+def getNeighborsA(node, closed):
+    neighbors = set()
+    mX, mY = node.position
+    top = True
+    bottom = True
+    right = True
+    left = True
+    if mY == 119:
+        top = False;
+        neighbors.add((mX, mY - 1))
+    elif mY == 0:
+        bottom = False
+        neighbors.add((mX, mY + 1))
+    else:
+        neighbors.add((mX, mY - 1))
+        neighbors.add((mX, mY + 1))
 
-"""
+    if mX == 159:
+        right = False
+        neighbors.add((mX - 1, mY))
+    elif mX == 0:
+        left = False
+        neighbors.add((mX + 1, mY))
+    else:
+        neighbors.add((mX + 1, mY))
+        neighbors.add((mX - 1, mY))
+
+    if top:
+        if right:
+            neighbors.add((mX + 1, mY + 1))
+
+        if left:
+            neighbors.add((mX - 1, mY + 1))
+
+    if bottom:
+        if right:
+            neighbors.add((mX + 1, mY - 1))
+
+        if left:
+            neighbors.add((mX - 1, mY - 1))
+
+    neighbors = neighbors-closed
+    return neighbors
 
 
 def getCost(matrix, prev, curr):
@@ -349,6 +459,52 @@ def getCost(matrix, prev, curr):
         else:
             return .5
 
+
+def getCostA(matrix, prev, curr):
+    mX, mY = prev.position
+    nX, nY = curr.position
+    if mX - nX != 0 and mY - nY != 0:
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
+            return math.sqrt(2)
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return (math.sqrt(2) + math.sqrt(8)) / 2
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return math.sqrt(.5) + math.sqrt(.03125)
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return math.sqrt(.5) + math.sqrt(.125)
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+            return math.sqrt(8)
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+            return math.sqrt(2) + math.sqrt(.03125)
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+            return math.sqrt(2) + math.sqrt(.125)
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
+            return math.sqrt(.125)
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+            return math.sqrt(.03125) + math.sqrt(.125)
+        else:
+            return math.sqrt(.5)
+    else:
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
+            return 1
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return 1.5
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return .625
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return .75
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+            return 2
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+            return 1.125
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+            return 1.25
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
+            return .25
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+            return .375
+        else:
+            return .5
 
 # >> Harder to Traverse Cells
 matrix = [["1" for i in range(120)] for j in range(160)]
@@ -431,14 +587,10 @@ while True:
 startPoint = vertices[0]
 endPoint = vertices[1]
 
-print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+# print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
 """
-# Start A*
-path = Node.Asearch(matrix, startPoint, endPoint)
-print("this is my path")
-print(path)
-"""
+
 
 visited, tracked, cost = ucs(matrix, startPoint, endPoint)
 print(startPoint)
@@ -468,6 +620,16 @@ matrix [eX][eY] = "E"
 
 
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+"""
+
+visited, tracked, cost = ucs(matrix, startPoint, endPoint)
+print(startPoint)
+print(endPoint)
+# print(tracked)
+print(cost)
+
+path = A(matrix, startPoint, endPoint)
+print(path)
 
 matrix = np.array(matrix)
 # Save the Grid to a Textfile

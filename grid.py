@@ -42,28 +42,17 @@ class Node():
         
         #append starter node 
         openlist.append(startParent)
-        print(len(openlist))
-        
-            
+
+
         #loop list until EndPoint found 
         while len(openlist) > 0:
-            print("ARRAY LENGTH")
-            print(len(openlist)) 
             newcurrent = openlist[0]
-            
             nodeindex = 0
-            print(newcurrent.position)
-            print(newcurrent.cost)
             #find current node, if total cost of i is less than newcurrent cost make newcurrent = i:
             for newindex, i in enumerate(openlist):
                 if i.cost < newcurrent.cost:
                     newcurrent=i
                     nodeindex= newindex
-                    print("i.cost newcurren.cost")
-                    print(i.cost)
-                    print(newcurrent.cost)
-                    print("nodeindex")
-                    print(nodeindex)
             openlist.pop(nodeindex)
             closedlist.append(newcurrent)
             # if current node = endnode, path found 
@@ -80,10 +69,7 @@ class Node():
             #check all positons, in range, not = 0
             for allPossiblePositons in [(1,1),(-1,-1),(0,-1),(-1,0),(1,-1),(-1,1),(0,1),(1,0)]:
                 nextposition =(newcurrent.position[0]+allPossiblePositons[0], newcurrent.position[1]+ allPossiblePositons[1])
-                
-                
-                print(nextposition)
-                print(newcurrent.position[0])
+
                 #check if node is not out of bounds
                
                 if nextposition[0]> (len(matrix) -1) or nextposition[0] < 0 or nextposition[1] > (len(matrix[len(matrix)-1])-1) or nextposition[1] < 0:
@@ -96,12 +82,7 @@ class Node():
                     continue
                 nextnode = Node(newcurrent,nextposition)
                 newChildren.append(nextnode) 
-                
-            
-            print(newcurrent)
-            print(len(newChildren))
-            print(len(closedlist))
-            print(len(openlist))
+
             newcost = 0
             for xelems in newChildren: #where it breaks
                 for yelems in closedlist:
@@ -117,18 +98,14 @@ class Node():
                 xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
                 xelems.cost = xelems.Distance + xelems.goal + xelems.cost
                 # any movements from 1 to 1 = +1 cost
-                
-                
 
-                print(xelems.cost)
-                print(xelems.Distance)
-                print(xelems.goal)
+
+
                 for zelems in openlist:
                     if xelems == zelems and xelems.goal >= zelems.goal:
                         continue
-                    
-                openlist.append(xelems)
-                print("I stop here")
+                    else:
+                        openlist.append(xelems)
 
 """
 ◦ Use ’0’ to indicate a blocked cell
@@ -413,15 +390,16 @@ endPoint = vertices[1]
 
 
 
-print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+#print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
 matrix = np.array(matrix)
 
+"""
 print(startPoint)
 print(endPoint)
+"""
 
 path = Node.Asearch(matrix, startPoint, endPoint)
-print("this is my path")
 print(path)
 
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
