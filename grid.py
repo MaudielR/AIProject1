@@ -111,48 +111,7 @@ class Node():
                 mY = newcurrent.position[1]
                 nX = xelems.position[0]
                 nY = xelems.position[1]
-                if mX - nX != 0 and mY - nY != 0:
-                    if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
-                        xelems.cost = 1.414
-                    elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
-                        xelems.cost = 1.414 + 1.41421356237
-                    elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
-                        xelems.cost = 0.70710678 + 0.1767766
-                    elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
-                        xelems =0.70710678  + 0.35355
-                    elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
-                        xelems.cost =2.82
-                    elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
-                        xelems.cost =1.414 + 0.1767766
-                    elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
-                        xelems.cost =1.414+ 0.35355
-                    elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
-                        xelems.cost = 0.35355
-                    elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
-                        xelems.cost = 0.1767766+0.35355
-                    else:
-                        xelems.cost = 0.70710678
-                else:
-                    if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
-                        xelems.cost =1
-                    elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
-                        xelems.cost =1.5
-                    elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
-                        xelems.cost =.625
-                    elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
-                        xelems.cost =.75
-                    elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
-                        xelems.cost =2
-                    elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
-                        xelems.cost =1.125
-                    elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
-                        xelems.cost =1.25
-                    elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
-                        xelems.cost =.25
-                    elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
-                        xelems.cost =.375
-                    else:
-                        xelems.cost =.5
+                xelems.cost = getCost(matrix, newcurrent.position, xelems.position)
                 #nodes of f, g and h
                 xelems.Distance = abs(xelems.position[0] - closedlist[0].position[0]) + abs(xelems.position[1] - closedlist[0].position[1])
                 xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
@@ -289,6 +248,54 @@ def move(matrix, dir):
         print("mSize is: " + str(mSize))
     count += mSize
     return True
+
+
+def getCost(matrix, prev, curr):
+    mX, mY = prev
+    nX, nY = curr
+    if mX - nX != 0 and mY - nY != 0:
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
+            return math.sqrt(2)
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return (math.sqrt(2) + math.sqrt(8)) / 2
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return math.sqrt(.5) + math.sqrt(.03125)
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return math.sqrt(.5) + math.sqrt(.125)
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+            return math.sqrt(8)
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+            return math.sqrt(2) + math.sqrt(.03125)
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+            return math.sqrt(2) + math.sqrt(.125)
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
+            return math.sqrt(.125)
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+            return math.sqrt(.03125) + math.sqrt(.125)
+        else:
+            return math.sqrt(.5)
+    else:
+        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
+            return 1
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
+            return 1.5
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
+            return .625
+        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
+            return .75
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
+            return 2
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
+            return 1.125
+        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
+            return 1.25
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
+            return .25
+        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
+            return .375
+        else:
+            return .5
+
 
 
 """
