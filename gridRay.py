@@ -16,6 +16,7 @@ class Node():
         # distance to start Node, distance to goal, total cost
         self.G = 0
         self.H = 0
+        self.W = 1
         self.cost = 0
 
     def __eq__(self, other):
@@ -262,7 +263,7 @@ def UpdateVertex(matrix, node, suc, fringe):
     return None"""
 
 
-def A(matrix, start, goal):
+def A(matrix, start, goal, weight):
     fringe = []
     closed = set()
     nodeStart = Node(start, start)
@@ -276,6 +277,8 @@ def A(matrix, start, goal):
                 path = []
                 while node != nodeStart:
                     path.append(node.position)
+                    mX, mY = node.position
+                    matrix[mX][mY] = "P"
                     node = node.parentNode
                 return path
             n = getNeighborsA(node, closed)
@@ -286,11 +289,12 @@ def A(matrix, start, goal):
                         suc = Node(node, x)
                         if suc not in fringe:
                             suc.G = sys.maxsize
+                            suc.W = weight
                         nodeCost = getCostA(matrix, node, suc)
                         if node.G + cost < suc.G:
                             suc.G = node.G + nodeCost
                             suc.parentNode = node
-                            suc.cost = suc.G + nodeCost
+                            suc.cost = suc.G + suc.W*suc.H
                             if suc in fringe:
                                 fringe.remove(suc)
                             fringe.append(suc)
@@ -628,8 +632,9 @@ print(endPoint)
 # print(tracked)
 print(cost)
 
-path = A(matrix, startPoint, endPoint)
+path = A(matrix, startPoint, endPoint, 1)
 print(path)
+print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
 matrix = np.array(matrix)
 # Save the Grid to a Textfile
