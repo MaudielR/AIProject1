@@ -92,7 +92,8 @@ class Node():
                 if (matrix[nextposition[0]][nextposition[1]] == 0): 
                     continue
 
-                
+                if nextposition in enumerate(openlist):
+                    continue
                 nextnode = Node(newcurrent,nextposition)
                 newChildren.append(nextnode) 
                 
@@ -104,7 +105,7 @@ class Node():
             newcost = 0
             for xelems in newChildren: #where it breaks
                 for yelems in closedlist:
-                    if xelems == yelems:
+                    if xelems.position == yelems.position:
                         continue
                 mX = newcurrent.position[0] 
                 mY = newcurrent.position[1]
@@ -158,16 +159,15 @@ class Node():
                 xelems.cost = xelems.Distance + xelems.goal + xelems.cost
                 # any movements from 1 to 1 = +1 cost
                 
-
+                
 
                 print(xelems.cost)
                 print(xelems.Distance)
                 print(xelems.goal)
                 for zelems in openlist:
-                    if xelems == zelems and xelems.Distance >= zelems.Distance:
-                        newChildren.pop(xelems)
+                    if xelems == zelems and xelems.goal >= zelems.goal:
                         continue
-                
+                    
                 openlist.append(xelems)
                 print("I stop here")
 
