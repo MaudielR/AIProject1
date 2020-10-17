@@ -431,7 +431,7 @@ while True:
 startPoint = vertices[0]
 endPoint = vertices[1]
 
-#print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
 """
 # Start A*
