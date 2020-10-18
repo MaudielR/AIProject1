@@ -374,7 +374,7 @@ def getInfo(Algo):
             path, cost = item
             average += cost
             length += len(path)
-    return average/2, length/2
+    return average/5, length/5
 
 def getSplitInfo(Algo):
     LAverage, LLength = 0, 0
@@ -390,7 +390,7 @@ def getSplitInfo(Algo):
                 RAverage += cost
                 RLength += len(path)
             count += 1
-        return LAverage, LLength, RAverage, RLength
+        return LAverage/5, LLength/5, RAverage/5, RLength/5
 """
 x, y, first, count = 0, 0, True, 0
 matrix = buildGrid()
