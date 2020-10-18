@@ -1,4 +1,4 @@
-
+from queue import PriorityQueue
 import math
 import random
 
@@ -12,6 +12,7 @@ import numpy as np
 direction) has a cost of (sqrt(2)+sqrt(8))/2;
 
 """
+
 class Node():
 
     #none 
@@ -24,7 +25,29 @@ class Node():
         self.goal = 0
         self.cost=0
         
-    
+    def A(matrix, start, goal):
+        fringe = PriorityQueue()
+        fringe.put(start, (start + start))
+        closed = set()
+
+        while fringe:
+            node = fringe.pop()
+            if node == goal:
+                path = []
+                while node.parentNode:
+                    path.append(node)
+                    node = node.parentNode
+                return path
+            closed.add(node)
+            for suc in getNeighbors(node):
+                mX, mY = suc
+                if matrix[mX][mY] != 0:
+                    if suc not in closed:
+                        if suc not in fringe:
+                            suc.goal = sys.maxsize
+                            suc.parentNode = None
+                        matrix.UpdateVertex(matrix,node,suc,fringe)
+        print("Path not found")
 #A start search 
     def Asearch(matrix, startPoint,EndPoint):
         #append node
@@ -36,7 +59,7 @@ class Node():
         endnode.Distance=0
         endnode.goal=0
         endnode.cost = 0
-
+        visited = set()
         openlist = []
         closedlist = []
         
@@ -53,6 +76,15 @@ class Node():
                 if i.cost < newcurrent.cost:
                     newcurrent=i
                     nodeindex= newindex
+<<<<<<< HEAD
+                    print("i.cost newcurren.cost")
+                    print(i.cost)
+                    print(newcurrent.cost)
+                    print("nodeindex")
+                    print(nodeindex)
+                    
+=======
+>>>>>>> 0e86b3e702d79137365bc311bd9c4186239e123c
             openlist.pop(nodeindex)
             closedlist.append(newcurrent)
             # if current node = endnode, path found 
@@ -80,6 +112,7 @@ class Node():
 
                 if nextposition in enumerate(openlist):
                     continue
+                
                 nextnode = Node(newcurrent,nextposition)
                 newChildren.append(nextnode) 
 
@@ -88,6 +121,26 @@ class Node():
                 for yelems in closedlist:
                     if xelems.position == yelems.position:
                         continue
+<<<<<<< HEAD
+                    else:
+                        visited.add(xelems)
+                        xelems.cost = getCost(matrix, newcurrent.position, xelems.position)
+                        #nodes of f, g and h
+                        xelems.Distance = abs(xelems.position[0] - closedlist[0].position[0]) + abs(xelems.position[1] - closedlist[0].position[1])
+                        xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(xelems.position[1] - endnode.position[1])
+                        xelems.cost = xelems.Distance + xelems.goal + xelems.cost
+                        # any movements from 1 to 1 = +1 cost
+                    
+                print(xelems.cost)
+                print(xelems.Distance)
+                print(xelems.goal)
+                for zelems in visited:
+                    if xelems == zelems and xelems.Distance>zelems.Distance:
+                        continue
+                    else:
+                        openlist.append(xelems)
+                        
+=======
                 mX = newcurrent.position[0] 
                 mY = newcurrent.position[1]
                 nX = xelems.position[0]
@@ -106,6 +159,7 @@ class Node():
                         continue
                     else:
                         openlist.append(xelems)
+>>>>>>> 0e86b3e702d79137365bc311bd9c4186239e123c
 
 """
 ◦ Use ’0’ to indicate a blocked cell
@@ -358,6 +412,11 @@ print(endPoint)
 """
 
 path = Node.Asearch(matrix, startPoint, endPoint)
+<<<<<<< HEAD
+#path = Node.A(matrix, startPoint, endPoint)
+print("this is my path")
+=======
+>>>>>>> 0e86b3e702d79137365bc311bd9c4186239e123c
 print(path)
 
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
