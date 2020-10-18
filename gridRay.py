@@ -28,7 +28,7 @@ class Node():
 
 #Can be visualized, but cannot be unvisualized also only do this after ALL TESTS are finished within a map cause it gets in the way of A*
 def visalize(matrix, path, start, goal):
-    temp = matrix.view()
+    temp = np.copy(matrix)
     for cords in path:
         mX, mY = cords
         temp[mX][mY] = "P"
@@ -106,6 +106,7 @@ def move(matrix, dir):
 def A(matrix, start, goal, weight, H):
     fringe = []
     closed = set()
+    cost = 0
     nodeStart = Node(start, start)
     nodeStart.W = weight
     fringe.append(nodeStart)
@@ -119,18 +120,20 @@ def A(matrix, start, goal, weight, H):
                 while node != nodeStart:
                     path.append(node.position)
                     mX, mY = node.position
-                    matrix[mX][mY] = "P"
                     node = node.parentNode
-                return path
+                    cost += getCostA(matrix, node, Node(0, (mX,mY)))
+                return path, cost
             n = getNeighborsA(node, closed)
             for x in n:
                 if x not in closed:
                     mX, mY = x
                     if matrix[mX][mY] != "0":
                         suc = Node(node, x)
+                        suc.W = weight
+                        if H:
+                            suc.H = math.trunc(distance((suc.position,goal)))
                         if suc not in fringe:
                             suc.G = sys.maxsize
-                            suc.W = weight
                         nodeCost = getCostA(matrix, node, suc)
                         if node.G + nodeCost < suc.G:
                             suc.G = node.G + nodeCost
@@ -364,16 +367,42 @@ def generateVertex(matrix):
             attempts += 1
     return vertices
 
+def getInfo(Algo):
+    average, length = 0, 0
+    for items in Algo:
+        for item in items:
+            path, cost = item
+            average += cost
+            length += len(path)
+    return average/2, length/2
 
+def getSplitInfo(Algo):
+    LAverage, LLength = 0, 0
+    RAverage, RLength = 0, 0
+    count = 0
+    for items in Algo:
+        for item in items:
+            path, cost = item
+            if count < 5:
+                LAverage += cost
+                LLength += len(path)
+            else:
+                RAverage += cost
+                RLength += len(path)
+            count += 1
+        return LAverage, LLength, RAverage, RLength
+"""
 x, y, first, count = 0, 0, True, 0
-"""matrix = buildGrid()
+matrix = buildGrid()
 vertices = generateVertex(matrix)
 startPoint = vertices[0]
 endPoint = vertices[1]
-path = A(matrix,startPoint,endPoint,1, False)
+path, cost = A(matrix,startPoint,endPoint,1, False)
+visalize(matrix, path ,startPoint,endPoint)
 print(path)
-"""
+print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
+"""
 UCS, aStar, aWeighted = [], [], []
 for i in range(0,5):
     matrix = buildGrid()
@@ -394,10 +423,21 @@ for i in range(0,5):
     aStar.append(pStar)
     aWeighted.append(pWeighted)
 
-
+#Average Cost and length
+AverageUCS, UCSLen = getInfo(UCS)
+AverageA, ALen = getInfo(aStar)
+AverageWL, WLenL, AverageWR, WLenR = getSplitInfo(aWeighted)
+WAverage = (AverageWL + AverageWR)/2
+LenW = (WLenL+WLenR)/2
+print("UCS " + str(AverageUCS) + " Len: " + str(UCSLen))
+print("A* " + str(AverageA) + " Len: " + str(ALen))
+print("Weighted A* " + str(AverageWL) + " Len: " + str(WLenL))
+print("Weighted A* " + str(AverageWR) + " Len: " + str(WLenR))
+print("Total Weighted A* " + str(WAverage) + " Len: " + str(LenW))
 print(UCS)
 print(aStar)
 print(aWeighted)
+
 
 
 
