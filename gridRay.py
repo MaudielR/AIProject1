@@ -127,9 +127,7 @@ def distance(vertices):
 
 # Use to build highway
 def build_highway(prevMatrix, dir):
-    global x
-    global y
-    # print("Build and X is " +str(x)+ " while y is " + str(y))
+    global x, y
     if (x >= 159 or y >= 119 or y <= 0 or x <= 0) and not first:
         return "F"
     curMatrix = prevMatrix
@@ -170,10 +168,8 @@ def build_highway(prevMatrix, dir):
 
 # Move in a specified direciton
 def move(matrix, dir):
-    global x
-    global y
-    global count
-    global first
+    global x,y, count, first
+
     mSize = 21
     try:
         if dir == "N":
@@ -225,48 +221,12 @@ def move(matrix, dir):
     count += mSize
     return True
 
-def UpdateVertex(matrix, node, suc, fringe):
-    cost = getCostA(matrix, node, suc)
-    if node.G + cost < suc.G:
-        suc.G = node.G + cost
-        suc.parentNode = node
-        suc.cost = suc.G + suc.cost
-        if suc in fringe.queue:
-            fringe.remove(suc)
-        fringe.put(suc)
 
-"""def A(matrix, start, goal):
-    fringe = []
-    closed = []
-    nodeStart = Node(None, start)
-    nodeGoal = Node(None, goal)
-    fringe.append(nodeStart)
-    while len(fringe) > 0:
-        fringe.sort()
-        node = fringe.pop(0)
-        if node == nodeGoal:
-            path = []
-            while node != nodeStart:
-                path.append(node.position)
-                node = node.parentNode
-            return path
-        closed.append(node)
-        mX, mY = node.position
-        for x in getNeighborsA(node):
-            if matrix[mX][mY] != "0":
-                suc = Node(node, x)
-            if suc not in closed:
-                if suc not in fringe:
-                    suc.G = sys.maxsize
-                    suc.parentNode = None
-                UpdateVertex(matrix, node, suc, fringe)
-    return None"""
-
-
-def A(matrix, start, goal, weight):
+def A(matrix, start, goal, weight, H):
     fringe = []
     closed = set()
     nodeStart = Node(start, start)
+    nodeStart.W = weight
     fringe.append(nodeStart)
     while fringe:
         fringe.sort()
@@ -291,85 +251,14 @@ def A(matrix, start, goal, weight):
                             suc.G = sys.maxsize
                             suc.W = weight
                         nodeCost = getCostA(matrix, node, suc)
-                        if node.G + cost < suc.G:
+                        if node.G + nodeCost < suc.G:
                             suc.G = node.G + nodeCost
                             suc.parentNode = node
-                            suc.cost = suc.G + suc.W*suc.H
+                            suc.cost = suc.G + suc.W * suc.H
                             if suc in fringe:
                                 fringe.remove(suc)
                             fringe.append(suc)
     return None
-
-"""   suc = Node(node, x)
-   if suc not in fringe.queue:
-       suc.G = sys.maxsize
-   UpdateVertex(matrix, node, suc, fringe)
-"""
-
-def ucs(matrix, start, goal):
-    visited = set()
-    track = {}
-    queue = PriorityQueue()
-    queue.put((0, start, 0))
-
-    while queue:
-        cost, node, parent = queue.get()
-        if node not in visited:
-            visited.add(node)
-            track[node] = parent
-            if node == goal:
-                return visited, track, cost
-            for i in getNeighbors(node):
-                if i not in visited:
-                    mX, mY = i
-                    # Check for blocked cells
-                    if matrix[mX][mY] != "0":
-                        nodeCost = getCost(matrix, node, i)
-                        total_cost = cost + nodeCost
-                        queue.put((total_cost, i, node))
-    return "UCS has failed if it reaches this point"
-
-
-# Node is a tuple of (X,Y)
-def getNeighbors(node):
-    neighbors = set()
-    mX, mY = node
-    top = True
-    bottom = True
-    right = True
-    left = True
-    if mY == 119:
-        top = False;
-        neighbors.add((mX, mY - 1))
-    elif mY == 0:
-        bottom = False
-        neighbors.add((mX, mY + 1))
-    else:
-        neighbors.add((mX, mY - 1))
-        neighbors.add((mX, mY + 1))
-
-    if mX == 159:
-        right = False
-        neighbors.add((mX - 1, mY))
-    elif mX == 0:
-        left = False
-        neighbors.add((mX + 1, mY))
-    else:
-        neighbors.add((mX + 1, mY))
-        neighbors.add((mX - 1, mY))
-
-    if top:
-        if right:
-            neighbors.add((mX + 1, mY + 1))
-        if left:
-            neighbors.add((mX - 1, mY + 1))
-    elif bottom:
-        if right:
-            neighbors.add((mX + 1, mY - 1))
-        if left:
-            neighbors.add((mX - 1, mY - 1))
-
-    return neighbors
 
 
 def getNeighborsA(node, closed):
@@ -413,55 +302,8 @@ def getNeighborsA(node, closed):
         if left:
             neighbors.add((mX - 1, mY - 1))
 
-    neighbors = neighbors-closed
+    neighbors = neighbors - closed
     return neighbors
-
-
-def getCost(matrix, prev, curr):
-    mX, mY = prev
-    nX, nY = curr
-    if mX - nX != 0 and mY - nY != 0:
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
-            return math.sqrt(2)
-        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
-            return (math.sqrt(2) + math.sqrt(8)) / 2
-        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
-            return math.sqrt(.5) + math.sqrt(.03125)
-        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
-            return math.sqrt(.5) + math.sqrt(.125)
-        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
-            return math.sqrt(8)
-        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
-            return math.sqrt(2) + math.sqrt(.03125)
-        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
-            return math.sqrt(2) + math.sqrt(.125)
-        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
-            return math.sqrt(.125)
-        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
-            return math.sqrt(.03125) + math.sqrt(.125)
-        else:
-            return math.sqrt(.5)
-    else:
-        if matrix[mX][mY] == "1" and matrix[nX][nY] == "1":
-            return 1
-        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "2":
-            return 1.5
-        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "a":
-            return .625
-        elif matrix[mX][mY] == "1" and matrix[nX][nY] == "b":
-            return .75
-        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "2":
-            return 2
-        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "a":
-            return 1.125
-        elif matrix[mX][mY] == "2" and matrix[nX][nY] == "b":
-            return 1.25
-        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "a":
-            return .25
-        elif matrix[mX][mY] == "a" and matrix[nX][nY] == "b":
-            return .375
-        else:
-            return .5
 
 
 def getCostA(matrix, prev, curr):
@@ -510,129 +352,107 @@ def getCostA(matrix, prev, curr):
         else:
             return .5
 
-# >> Harder to Traverse Cells
-matrix = [["1" for i in range(120)] for j in range(160)]
-centers = []
-regions = 0
-while regions < 8:
-    hX = random.randint(0, 159)
-    hY = random.randint(0, 119)
-    if hX - 16 >= 0 and hX + 15 <= 119 and hY - 16 >= 0 and hY + 15 <= 159:
-        for i in range(hX - 16, hX + 16):
-            for j in range(hY - 16, hX + 15):
-                r = random.randint(0, 2)
-                if r == 0:
-                    matrix[i][j] = "2"
-        regions += 1
-        centers.append((hX, hY))
 
-# >> Select 4 Paths
-paths = 0
-while paths < 4:
-    # Random starting cords
-    x = random.randint(0, 159)
-    y = random.randint(0, 119)
-    count = 0
-    first = True
-    if x > y:
-        x = 0
-        direction = "E"
-    else:
-        y = 0
-        direction = "N"
-    attempts = 0
-    while direction != "F":
-        oldDir = direction
-        direction = build_highway(matrix, direction)
-        if direction == "R":
-            attempts += 1
-            direction = oldDir
+def buildHard(matrix):
+    centers = []
+    regions = 0
+    while regions < 8:
+        hX, hY = random.randint(0, 159), random.randint(0, 119)
+        if hX - 16 >= 0 and hX + 15 <= 119 and hY - 16 >= 0 and hY + 15 <= 159:
+            for i in range(hX - 16, hX + 16):
+                for j in range(hY - 16, hX + 15):
+                    r = random.randint(0, 2)
+                    if r == 0:
+                        matrix[i][j] = "2"
+            regions += 1
+            centers.append((hX, hY))
+    return matrix
+
+
+def buildBlocks(matrix):
+    global x,y
+    blocked = 0
+    while blocked < 3840:
+        x = random.randint(0, 159)
+        y = random.randint(0, 119)
+        if matrix[x][y] == "1" or matrix[x][y] == "2":
+            matrix[x][y] = "0"
+            blocked += 1
+    return matrix
+
+
+def buildPath(matrix):
+    global x, y, count, first
+    paths = 0
+    while paths < 4:
+        x, y = random.randint(0, 159), random.randint(0, 119)
+        count, first = 0, True
+        if x > y:
+            x = 0
+            direction = "E"
         else:
-            first = False
-            attempts = 0
-
-        if attempts > 5 or direction is None:
-            break
-    if count > 100:
-        paths += 1
-
-# >> Select Blocked Cells
-blocked = 0
-while blocked < 3840:
-    x = random.randint(0, 159)
-    y = random.randint(0, 119)
-    if matrix[x][y] == "1" or matrix[x][y] == "2":
-        matrix[x][y] = "0"
-        blocked += 1
-
-# >>Select Start and Goal
-attempts = 0
-vertices = []
-while True:
-    if len(vertices) == 2:
-        if distance(vertices) > 100:
-            break
-        else:
-            vertices.pop(0)
-
-    if attempts % 2 == 0:
-        x = random.randint(0, 20)
-        y = random.randint(100, 119)
-    else:
-        x = random.randint(140, 159)
-        y = random.randint(0, 20)
-
-    if matrix[x][y] == "1" or matrix[x][y] == "2" and len(vertices) <= 1:
-        vertices.append((x, y))
+            y = 0
+            direction = "N"
         attempts = 0
-    else:
-        attempts += 1
+        while direction != "F":
+            oldDir = direction
+            direction = build_highway(matrix, direction)
+            if direction == "R":
+                attempts += 1
+                direction = oldDir
+            else:
+                first = False
+                attempts = 0
 
+            if attempts > 5 or direction is None:
+                break
+        if count > 100:
+            paths += 1
+    return matrix
+
+
+def buildGrid():
+    matrix = [["1" for i in range(120)] for j in range(160)]
+    matrix = buildHard(matrix)
+    matrix = buildPath(matrix)
+    matrix = buildBlocks(matrix)
+    return matrix
+
+
+def generateVertex(matrix):
+    attempts = 0
+    vertices = []
+    while True:
+        if len(vertices) == 2:
+            if distance(vertices) > 100:
+                break
+            else:
+                vertices.pop(0)
+
+        if attempts % 2 == 0:
+            x = random.randint(0, 20)
+            y = random.randint(100, 119)
+        else:
+            x = random.randint(140, 159)
+            y = random.randint(0, 20)
+
+        if matrix[x][y] == "1" or matrix[x][y] == "2" and len(vertices) <= 1:
+            vertices.append((x, y))
+            attempts = 0
+        else:
+            attempts += 1
+    return vertices
+
+
+x, y, first, count = 0,0,True,0
+matrix = buildGrid()
+vertices = generateVertex(matrix)
 startPoint = vertices[0]
 endPoint = vertices[1]
 
-# print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
-
-"""
 
 
-visited, tracked, cost = ucs(matrix, startPoint, endPoint)
-print(startPoint)
-print(endPoint)
-#print(tracked)
-print(cost)
-
-for i in visited:
-    mX, mY = i
-    matrix[mX][mY] = "X"
-
-path = []
-currNode = tracked[endPoint]
-path.append((endPoint))
-while currNode != 0:
-    mX, mY = currNode
-    matrix[mX][mY] = "P"
-    path.append(currNode)
-    currNode = tracked[currNode]
-
-
-sX, sY = startPoint
-eX, eY = endPoint
-
-matrix[sX][sY] = "S"
-matrix [eX][eY] = "E"
-
-
-print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
-"""
-
-visited, tracked, cost = ucs(matrix, startPoint, endPoint)
-print(startPoint)
-print(endPoint)
-# print(tracked)
-print(cost)
-
-path = A(matrix, startPoint, endPoint, 1)
+path = A(matrix, startPoint, endPoint, 1, 0)
 print(path)
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
@@ -641,3 +461,4 @@ matrix = np.array(matrix)
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 with open("test.txt", 'w') as f:
     f.write(np.array2string(matrix, separator=', '))
+

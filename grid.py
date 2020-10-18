@@ -123,51 +123,9 @@ def distance(vertices):
     return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
 
-# Use to build highway
-def build_highway(prevMatrix, dir):
-    global x
-    global y
-    # print("Build and X is " +str(x)+ " while y is " + str(y))
-    if (x >= 159 or y >= 119 or y <= 0 or x <= 0) and not first:
-        return "F"
-    curMatrix = prevMatrix
-    rC = random.randint(0, 100)
-    if rC < 60:
-        built = move(prevMatrix, dir)
-        if built:
-            return dir
-        else:
-            prevMatrix[:] = curMatrix
-            return "R"
-    elif rC > 60 or first:
-        if dir == "N":
-            if move(prevMatrix, "E"):
-                return "E"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-        elif dir == "S":
-            if move(prevMatrix, "W"):
-                return "W"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-        elif dir == "E":
-            if move(prevMatrix, "S"):
-                return "S"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-        elif dir == "W":
-            if move(prevMatrix, "N"):
-                return "N"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-
 
 def move(matrix, dir):
-    global x
+    global mX
     global y
     global count
     global first
