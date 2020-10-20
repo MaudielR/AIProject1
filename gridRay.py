@@ -61,7 +61,7 @@ def optimalHeuristic(node, closed):
                     D2 = min(D2,nodeCost)
                 else:
                     D = min(D,nodeCost)
-    return D * (nX + nY) + (D2 - 2 * D) * min(nX, nY)
+    return D * (nX + nY) 
 
 
     return

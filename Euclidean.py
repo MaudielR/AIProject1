@@ -46,7 +46,23 @@ def distance(vertices):
     y1 = vertices[0][1]
     y2 = vertices[1][1]
     return math.sqrt((((x2 - x1) ** 2) + ((y2 - y1) ** 2)))
+def optimalHeuristic(node, closed):
+    D,D2 = 3,3
+    nX, nY = node.position
+    dx = abs(nX-gX)
+    dy= abs(nY-gY)
+    for n in getNeighborsA(node, closed):
+        if n not in closed:
+            mX, mY = n
+            if matrix[mX][mY] != "0":
+                suc = Node(node, n)
+                nodeCost = getCostA(matrix, node, suc)
+                D = min(D,nodeCost)
+                    
+    return D * sqrt(dX * dx + dy * dy) 
 
+
+    return
 
 # Move in a specified direciton
 def move(matrix, dir):
@@ -136,9 +152,9 @@ def A(matrix, start, goal, weight, H):
                             suc.G = sys.maxsize
                         nodeCost = getCostA(matrix, node, suc)
                         if node.G + nodeCost < suc.G:
-                            suc.G = abs(node.G - nodeCost)
+                            suc.G = node.G + nodeCost
                             suc.parentNode = node
-                            suc.cost = ((suc.G * suc.G + suc.W * suc.W)**2) * suc.H
+                            suc.cost = suc.G + suc.W * suc.H
                             if suc in fringe:
                                 fringe.remove(suc)
                             fringe.append(suc)

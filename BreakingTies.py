@@ -46,7 +46,26 @@ def distance(vertices):
     y1 = vertices[0][1]
     y2 = vertices[1][1]
     return math.sqrt((((x2 - x1) ** 2) + ((y2 - y1) ** 2)))
+def optimalHeuristic(node, closed):
+    D,D2 = 3,3
+    nX, nY = node.position
+    dx1 = current.x - goal.x
+    dy1 = current.y - goal.y
+    dx2 = start.x - goal.x
+    dy2 = start.y - goal.y
+    cross = abs(dx1*dy2 - dx2*dy1)
+    
+    for n in getNeighborsA(node, closed):
+        if n not in closed:
+            mX, mY = n
+            if matrix[mX][mY] != "0":
+                suc = Node(node, n)
+                nodeCost = getCostA(matrix, node, suc)
+                
+    return D += cross*0.1
 
+
+    return
 
 # Move in a specified direciton
 def move(matrix, dir):
