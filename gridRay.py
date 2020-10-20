@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 
-class Node():   
+class Node():
 
     def __init__(self, parentNode: (), position: ()):
         self.parentNode = parentNode
@@ -26,7 +26,7 @@ class Node():
     def __hash__(self):
         return hash(self.cost)
 
-#Can be visualized, but cannot be unvisualized also only do this after ALL TESTS are finished within a map cause it gets in the way of A*
+
 def visalize(matrix, path, start, goal):
     temp = np.copy(matrix)
     for cords in path:
@@ -46,23 +46,22 @@ def distance(vertices):
     y1 = vertices[0][1]
     y2 = vertices[1][1]
     return math.sqrt((((x2 - x1) ** 2) + ((y2 - y1) ** 2)))
+
+#Where node is a Node object and goal is vertices
 def optimalHeuristic(node, closed):
     D,D2 = 3,3
     nX, nY = node.position
-    dx1 = current.x - goal.x
-    dy1 = current.y - goal.y
-    dx2 = start.x - goal.x
-    dy2 = start.y - goal.y
-    cross = abs(dx1*dy2 - dx2*dy1)
-    
     for n in getNeighborsA(node, closed):
         if n not in closed:
             mX, mY = n
             if matrix[mX][mY] != "0":
                 suc = Node(node, n)
                 nodeCost = getCostA(matrix, node, suc)
-                
-    return D += cross*0.1
+                if mX - nX != 0 and mY - nY != 0:
+                    D2 = min(D2,nodeCost)
+                else:
+                    D = min(D,nodeCost)
+    return D * (nX + nY) 
 
 
     return
@@ -137,32 +136,30 @@ def A(matrix, start, goal, weight, H):
             if node.position == goal:
                 path = []
                 while node != nodeStart:
+                    mem = sys.getsizeof(fringe) + sys.getsizeof(closed)
                     path.append(node.position)
                     mX, mY = node.position
                     node = node.parentNode
-                    cost += getCostA(matrix, node, Node(0, (mX,mY)))
-                return path, cost
+                    cost += getCostA(matrix, node, Node(0, (mX, mY)))
+                return path, cost, mem, len(closed)
             n = getNeighborsA(node, closed)
             for x in n:
                 if x not in closed:
                     mX, mY = x
                     if matrix[mX][mY] != "0":
                         suc = Node(node, x)
-                        
-                        
+                        suc.W = weight
+                        nodeCost = getCostA(matrix, node, suc)
+                        if H == "D":
+                            suc.H = optimalHeuristic(suc, closed)
+                        elif H == "N":
+                            suc.H = math.trunc(distance((suc.position, goal)))
                         if suc not in fringe:
                             suc.G = sys.maxsize
-                        nodeCost = getCostA(matrix, node, suc)
                         if node.G + nodeCost < suc.G:
-
-                            suc1 = node.G - suc.G
-                            suc2 = node.W - suc.W
-                            suc3 = node.W - suc.W
-                            suc4 = node.G - suc.G
-
-                            suc.cost = abs(suc1*suc4 - suc2*suc3)
-                            suc.H += suc.cost*0.001
-
+                            suc.G = node.G + nodeCost
+                            suc.parentNode = node
+                            suc.cost = suc.G + suc.W * suc.H
                             if suc in fringe:
                                 fringe.remove(suc)
                             fringe.append(suc)
@@ -391,30 +388,60 @@ def generateVertex(matrix):
             attempts += 1
     return vertices
 
+
 def getInfo(Algo):
-    average, length = 0, 0
+    average, length, memory, expanded = [], [], [], []
     for items in Algo:
+        path, cost, mem, nodes = 0, 0, 0, 0
         for item in items:
-            path, cost = item
-            average += cost
-            length += len(path)
-    return average/5, length/5
+            p, c, m, n = item
+            cost += c
+            path += len(p)
+            mem += m
+            nodes += n
+        average.append(cost/10)
+        length.append(path/10)
+        memory.append(mem/10)
+        expanded.append(nodes/10)
+    return average, length, memory, expanded
+
 
 def getSplitInfo(Algo):
-    LAverage, LLength = 0, 0
-    RAverage, RLength = 0, 0
-    count = 0
+    LAverage, LLength, LMemory, LExpanded = [], [], [], []
+    RAverage, RLength, RMemory, RExpanded = [], [], [], []
     for items in Algo:
+        count = 0
+        LPath, LCost, LMem, LNode = 0, 0, 0, 0
+        RPath, RCost, RMem, RNode = 0, 0, 0, 0
         for item in items:
-            path, cost = item
+            p,c,m,n = item
             if count < 5:
-                LAverage += cost
-                LLength += len(path)
+                LCost += c
+                LPath += len(p)
+                LMem += m
+                LNode += n
             else:
-                RAverage += cost
-                RLength += len(path)
+                RCost += c
+                RPath += len(p)
+                RMem += m
+                RNode += n
             count += 1
-        return LAverage/5, LLength/5, RAverage/5, RLength/5
+        LAverage.append(LCost/5)
+        LLength.append(LPath/5)
+        LMemory.append(LMem/5)
+        LExpanded.append(LNode/5)
+        RAverage.append(RCost/5)
+        RLength.append(RPath/5)
+        RMemory.append(RMem/5)
+        RExpanded.append(RNode/5)
+    return LAverage, LLength, LMemory, LExpanded, RAverage, RLength, RMemory, RExpanded
+
+def getListTotal(L):
+    total = 0
+    for items in L:
+        total += items
+    return total
+
 """
 x, y, first, count = 0, 0, True, 0
 matrix = buildGrid()
@@ -425,46 +452,50 @@ path, cost = A(matrix,startPoint,endPoint,1, False)
 visalize(matrix, path ,startPoint,endPoint)
 print(path)
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
-
 """
 UCS, aStar, aWeighted = [], [], []
-for i in range(0,5):
+for i in range(0,1):
+    pUCS, pStar, pWeighted = [], [], []
     matrix = buildGrid()
-    for j in range(0,10):
-        pUCS, pStar, pWeighted = [], [], []
+    matrix = np.array(matrix)
+    np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+    with open("Map" + str(i+1) + ".txt", 'w') as f:
+        f.write(np.array2string(matrix, separator=', '))
+    for j in range(0, 10):
         vertices = generateVertex(matrix)
         startPoint = vertices[0]
         endPoint = vertices[1]
-        pUCS.append(A(matrix,startPoint,endPoint,1, False))
-        pStar.append(A(matrix,startPoint,endPoint,1, True))
+        pUCS.append(A(matrix, startPoint, endPoint, 1, "F"))
+        pStar.append(A(matrix, startPoint, endPoint, 1, "D"))
         if j < 5:
-            pWeighted.append(A(matrix,startPoint,endPoint,1.25, True))
+            pWeighted.append(A(matrix, startPoint, endPoint, 1.25, "D"))
         else:
-            pWeighted.append(A(matrix, startPoint, endPoint, 2, True))
-
-
+            pWeighted.append(A(matrix, startPoint, endPoint, 2, "D"))
     UCS.append(pUCS)
     aStar.append(pStar)
     aWeighted.append(pWeighted)
 
-#Average Cost and length
-AverageUCS, UCSLen = getInfo(enumerate(UCS))
-AverageA, ALen = getInfo(enumerate(aStar))
-AverageWL, WLenL, AverageWR, WLenR = getSplitInfo(enumerate(aWeighted))
-WAverage = (AverageWL + AverageWR)/2
-LenW = (WLenL+WLenR)/2
-print("UCS " + str(AverageUCS) + " Len: " + str(UCSLen))
-print("A* " + str(AverageA) + " Len: " + str(ALen))
-print("Weighted A* " + str(AverageWL) + " Len: " + str(WLenL))
-print("Weighted A* " + str(AverageWR) + " Len: " + str(WLenR))
-print("Total Weighted A* " + str(WAverage) + " Len: " + str(LenW))
-print(UCS)
-print(aStar)
-print(aWeighted)
+# Average Cost and length
+AverageUCS, UCSLen, MemoryUCS, ExpandedUCS = getInfo(UCS)
+AverageA, ALen, MemoryA, ExpandedA = getInfo(aStar)
+AverageWL, WLenL, MemoryWL,ExpandedWL, AverageWR, WLenR, MemoryWR, ExpandedWR = getSplitInfo(aWeighted)
+print("UCS " + str(AverageUCS) + " Len: " + str(UCSLen) + " Mem: " + str(MemoryUCS) + " Nodes: " + str(ExpandedUCS))
+print("A* " + str(AverageA) + " Len: " + str(ALen)+ " Mem: " + str(MemoryA) + " Nodes: " + str(ExpandedA))
+print("Weighted A* with 1.25:  " + str(AverageWL) + " Len: " + str(WLenL) + " Mem: " + str(MemoryWL) + " Nodes: " + str(ExpandedWL))
+print("Weighted A* with 2:  " + str(AverageWR) + " Len: " + str(WLenR) + " Mem: " + str(MemoryWR) + " Nodes: " + str(ExpandedWR))
+AverageUCS, UCSLen, MemoryUCS, ExpandedUCS = getListTotal(AverageUCS)/5, getListTotal(UCSLen)/5, getListTotal(MemoryUCS)/5, getListTotal(ExpandedUCS)/5
+AverageA, ALen, MemoryA, ExpandedA = getListTotal(AverageA)/5, getListTotal(ALen)/5, getListTotal(MemoryA)/5, getListTotal(ExpandedA)/5
+AverageWL, WLenL, MemoryWL, ExpandedWL = getListTotal(AverageWL)/5, getListTotal(WLenL)/5, getListTotal(MemoryWL)/5, getListTotal(ExpandedWL)/5
+AverageWR, WLenR, MemoryWR, ExpandedWR = getListTotal(AverageWR)/5, getListTotal(WLenR)/5, getListTotal(MemoryWR)/5, getListTotal(ExpandedWR)/5
+WAverage = (AverageWL + AverageWR) / 2
+LenW = (WLenL + WLenR) / 2
+MemoryW = (MemoryWL+MemoryWR)/2
+ExpandedW = (ExpandedWL+ExpandedWR)/2
+#WAverage, LenW, MemoryW, ExpandedW = getListAverage(WAverage), getListAverage(LenW), getListAverage(MemoryW), getListAverage(ExpandedW)
+print("UCS " + str(AverageUCS) + " Len: " + str(UCSLen) + " Mem: " + str(MemoryUCS) + " Nodes: " + str(ExpandedUCS))
+print("A* " + str(AverageA) + " Len: " + str(ALen)+ " Mem: " + str(MemoryA) + " Nodes: " + str(ExpandedA))
+print("Weighted A* with 1.25 " + str(AverageWL) + " Len: " + str(WLenL) + " Mem: " + str(MemoryWL) + " Nodes: " + str(ExpandedWL))
+print("Weighted A* with 2: " + str(AverageWR) + " Len: " + str(WLenR) + " Mem: " + str(MemoryWR) + " Nodes: " + str(ExpandedWR))
+print("Total Weighted A* " + str(WAverage) + " Len: " + str(LenW)+ " Mem: " + str(MemoryW) + " Nodes: " + str(ExpandedW))
 
 
-
-
-"""np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-    with open("Map"+str(i)+".txt", 'w') as f:
-        f.write(np.array2string(matrix, separator=', '))"""
