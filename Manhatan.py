@@ -1,7 +1,7 @@
 import math
 import random
 import sys
-from gridRay import Node, buildGrid,buildPath,buildBlocks,buildHard,buildPathHelper,getNeighborsA,getInfo,getCostA,getSplitInfo,generateVertex,getListTotal,move,distance
+from grid import Node, buildGrid,buildPath,buildBlocks,buildHard,buildPathHelper,getNeighborsA,getInfo,getCostA,getSplitInfo,generateVertex,getListTotal,move,distance
 import numpy as np
 
 
