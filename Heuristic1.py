@@ -1,19 +1,17 @@
 import math
 import random
 import sys
-from queue import PriorityQueue
 
 import numpy as np
 
 
-class Node():
+class Node():   ``
 
-    # none
     def __init__(self, parentNode: (), position: ()):
         self.parentNode = parentNode
         self.position = position
 
-        # distance to start Node, distance to goal, total cost
+        # distance to start Node, distance to goal, weight, total cost
         self.G = 0
         self.H = 0
         self.W = 1
@@ -28,92 +26,17 @@ class Node():
     def __hash__(self):
         return hash(self.cost)
 
-    # A start search
-    def Asearch(matrix, startPoint, EndPoint):
-        # append node
-        startParent = Node(None, startPoint)
-        startParent.Distance = 0
-        startParent.goal = 0
-        startParent.cost = 0
-        endnode = Node(None, endPoint)
-        endnode.Distance = 0
-        endnode.goal = 0
-        endnode.cost = 0
-
-        openlist = []
-        closedlist = []
-
-        # append starter node
-        openlist.append(startParent)
-        print(len(openlist))
-
-        # loop list until EndPoint found
-        while len(openlist) > 0:
-
-            print(len(openlist))
-            newcurrent = openlist[0]
-
-            nodeindex = 0
-
-            # find current node, if total cost of i is less than newcurrent cost make newcurrent = i:
-            for newindex, i in enumerate(openlist):
-                if i.cost < newcurrent.cost:
-                    newcurrent = i
-                    nodeindex = newindex
-
-            openlist.pop(nodeindex)
-            closedlist.append(newcurrent)
-            # if current node = endnode, path found
-            if newcurrent == endnode:
-                Pathfound = []
-                currentnode = newcurrent
-                while currentnode != None:
-                    Pathfound.append(currentnode.position)
-                    currentnode = currentnode.parentNode
-                    # reversed path
-                return Pathfound[::-1]
-
-            newChildren = []
-            # check all positons, in range, not = 0
-            for allPossiblePositons in [(1, 1), (-1, -1), (0, -1), (-1, 0), (1, -1), (-1, 1), (0, 1), (1, 0)]:
-                nextposition = (
-                    newcurrent.position[0] + allPossiblePositons[0], newcurrent.position[1] + allPossiblePositons[1])
-
-                # check if node is not out of bounds
-                if nextposition[0] > (len(matrix) - 1) or nextposition[0] < 0 or nextposition[1] > (
-                        len(matrix[len(matrix) - 1]) - 1) or nextposition[1] < 0:
-                    print("invalid position")
-                    continue
-
-                # check 0 areas
-                if matrix[nextposition[0]][nextposition[1]] == 1 or matrix[nextposition[0]][nextposition[1]] == 'a' or \
-                        matrix[nextposition[0]][nextposition[1]] == 'b':
-                    continue
-
-                nextnode = Node(newcurrent, nextposition)
-                newChildren.append(nextnode)
-                print(nextposition)
-            print(len(newChildren))
-            print(len(closedlist))
-            for xelems in newChildren:  # where it breaks
-                for yelems in closedlist:
-                    if xelems == yelems:
-                        continue
-                # I have the cost wrong, must impliment method of :
-
-                # nodes of f, g and h
-                xelems.Distance = abs(xelems.position[0] - startParent.position[0]) + abs(
-                    xelems.position[1] - startParent.position[1])
-                xelems.goal = abs(xelems.position[0] - endnode.position[0]) + abs(
-                    xelems.position[1] - endnode.position[1])
-                xelems.count = xelems.Distance + xelems.goal
-
-                for zelems in openlist:
-                    if zelems == xelems and xelems.Distance > zelems.Distance:
-                        continue
-
-                openlist.append(xelems)
-                print("I stop here")
+#Can be visualized, but cannot be unvisualized also only do this after ALL TESTS are finished within a map cause it gets in the way of A*
+def visalize(matrix, path, start, goal):
+    temp = np.copy(matrix)
+    for cords in path:
+        mX, mY = cords
+        temp[mX][mY] = "P"
+    sX, sY = start
+    gX, gY = goal
+    temp[sX][sY] = "S"
+    temp[gX][gY] = "G"
+    print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in temp]))
 
 
 # Calculates Distance between two vertices
@@ -125,51 +48,9 @@ def distance(vertices):
     return math.sqrt((((x2 - x1) ** 2) + ((y2 - y1) ** 2)))
 
 
-# Use to build highway
-def build_highway(prevMatrix, dir):
-    global x, y
-    if (x >= 159 or y >= 119 or y <= 0 or x <= 0) and not first:
-        return "F"
-    curMatrix = prevMatrix
-    rC = random.randint(0, 100)
-    if rC < 60:
-        built = move(prevMatrix, dir)
-        if built:
-            return dir
-        else:
-            prevMatrix[:] = curMatrix
-            return "R"
-    elif rC > 60 or first:
-        if dir == "N":
-            if move(prevMatrix, "E"):
-                return "E"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-        elif dir == "S":
-            if move(prevMatrix, "W"):
-                return "W"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-        elif dir == "E":
-            if move(prevMatrix, "S"):
-                return "S"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-        elif dir == "W":
-            if move(prevMatrix, "N"):
-                return "N"
-            else:
-                prevMatrix[:] = curMatrix
-                return "R"
-
-
 # Move in a specified direciton
 def move(matrix, dir):
-    global x,y, count, first
-
+    global x, y, count, first
     mSize = 21
     try:
         if dir == "N":
@@ -225,6 +106,7 @@ def move(matrix, dir):
 def A(matrix, start, goal, weight, H):
     fringe = []
     closed = set()
+    cost = 0
     nodeStart = Node(start, start)
     nodeStart.W = weight
     fringe.append(nodeStart)
@@ -238,18 +120,20 @@ def A(matrix, start, goal, weight, H):
                 while node != nodeStart:
                     path.append(node.position)
                     mX, mY = node.position
-                    matrix[mX][mY] = "P"
                     node = node.parentNode
-                return path
+                    cost += getCostA(matrix, node, Node(0, (mX,mY)))
+                return path, cost
             n = getNeighborsA(node, closed)
             for x in n:
                 if x not in closed:
                     mX, mY = x
                     if matrix[mX][mY] != "0":
                         suc = Node(node, x)
+                        suc.W = weight
+                        if H:
+                            suc.H = math.trunc(distance((suc.position,goal)))
                         if suc not in fringe:
                             suc.G = sys.maxsize
-                            suc.W = weight
                         nodeCost = getCostA(matrix, node, suc)
                         if node.G + nodeCost < suc.G:
                             suc.G = node.G + nodeCost
@@ -370,7 +254,7 @@ def buildHard(matrix):
 
 
 def buildBlocks(matrix):
-    global x,y
+    global x, y
     blocked = 0
     while blocked < 3840:
         x = random.randint(0, 159)
@@ -379,6 +263,46 @@ def buildBlocks(matrix):
             matrix[x][y] = "0"
             blocked += 1
     return matrix
+
+
+def buildPathHelper(prevMatrix, dir):
+    global x, y
+    if (x >= 159 or y >= 119 or y <= 0 or x <= 0) and not first:
+        return "F"
+    curMatrix = prevMatrix
+    rC = random.randint(0, 100)
+    if rC < 60:
+        built = move(prevMatrix, dir)
+        if built:
+            return dir
+        else:
+            prevMatrix[:] = curMatrix
+            return "R"
+    elif rC > 60 or first:
+        if dir == "N":
+            if move(prevMatrix, "E"):
+                return "E"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
+        elif dir == "S":
+            if move(prevMatrix, "W"):
+                return "W"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
+        elif dir == "E":
+            if move(prevMatrix, "S"):
+                return "S"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
+        elif dir == "W":
+            if move(prevMatrix, "N"):
+                return "N"
+            else:
+                prevMatrix[:] = curMatrix
+                return "R"
 
 
 def buildPath(matrix):
@@ -396,7 +320,7 @@ def buildPath(matrix):
         attempts = 0
         while direction != "F":
             oldDir = direction
-            direction = build_highway(matrix, direction)
+            direction = buildPathHelper(matrix, direction)
             if direction == "R":
                 attempts += 1
                 direction = oldDir
@@ -417,30 +341,7 @@ def buildGrid():
     matrix = buildPath(matrix)
     matrix = buildBlocks(matrix)
     return matrix
-def getInfo(Algo):
-    average, length = 0, 0
-    for items in Algo:
-        for item in items:
-            path, cost = item
-            average += cost
-            length += len(path)
-    return average/5, length/5
 
-def getSplitInfo(Algo):
-    LAverage, LLength = 0, 0
-    RAverage, RLength = 0, 0
-    count = 0
-    for items in Algo:
-        for item in items:
-            path, cost = item
-            if count < 5:
-                LAverage += cost
-                LLength += len(path)
-            else:
-                RAverage += cost
-                RLength += len(path)
-            count += 1
-        return LAverage/5, LLength/5, RAverage/5, RLength/5
 
 def generateVertex(matrix):
     attempts = 0
@@ -465,7 +366,43 @@ def generateVertex(matrix):
         else:
             attempts += 1
     return vertices
-    
+
+def getInfo(Algo):
+    average, length = 0, 0
+    for items in Algo:
+        for item in items:
+            path, cost = item
+            average += cost
+            length += len(path)
+    return average/5, length/5
+
+def getSplitInfo(Algo):
+    LAverage, LLength = 0, 0
+    RAverage, RLength = 0, 0
+    count = 0
+    for items in Algo:
+        for item in items:
+            path, cost = item
+            if count < 5:
+                LAverage += cost
+                LLength += len(path)
+            else:
+                RAverage += cost
+                RLength += len(path)
+            count += 1
+        return LAverage/5, LLength/5, RAverage/5, RLength/5
+"""
+x, y, first, count = 0, 0, True, 0
+matrix = buildGrid()
+vertices = generateVertex(matrix)
+startPoint = vertices[0]
+endPoint = vertices[1]
+path, cost = A(matrix,startPoint,endPoint,1, False)
+visalize(matrix, path ,startPoint,endPoint)
+print(path)
+print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
+
+"""
 UCS, aStar, aWeighted = [], [], []
 for i in range(0,5):
     matrix = buildGrid()
@@ -486,12 +423,7 @@ for i in range(0,5):
     aStar.append(pStar)
     aWeighted.append(pWeighted)
 
-x, y, first, count = 0,0,True,0
-matrix = buildGrid()
-vertices = generateVertex(matrix)
-startPoint = vertices[0]
-endPoint = vertices[1]
-
+#Average Cost and length
 AverageUCS, UCSLen = getInfo(UCS)
 AverageA, ALen = getInfo(aStar)
 AverageWL, WLenL, AverageWR, WLenR = getSplitInfo(aWeighted)
@@ -505,12 +437,10 @@ print("Total Weighted A* " + str(WAverage) + " Len: " + str(LenW))
 print(UCS)
 print(aStar)
 print(aWeighted)
-path = A(matrix, startPoint, endPoint, 1, 0)
-print(path)
-print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
-matrix = np.array(matrix)
-# Save the Grid to a Textfile
-np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-with open("test.txt", 'w') as f:
-    f.write(np.array2string(matrix, separator=', '))
+
+
+
+"""np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+    with open("Map"+str(i)+".txt", 'w') as f:
+        f.write(np.array2string(matrix, separator=', '))"""
