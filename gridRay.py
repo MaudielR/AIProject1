@@ -27,7 +27,6 @@ class Node():
         return hash(self.cost)
 
 
-# Can be visualized, but cannot be unvisualized also only do this after ALL TESTS are finished within a map cause it gets in the way of A*
 def visalize(matrix, path, start, goal):
     temp = np.copy(matrix)
     for cords in path:
@@ -48,6 +47,24 @@ def distance(vertices):
     y2 = vertices[1][1]
     return math.sqrt((((x2 - x1) ** 2) + ((y2 - y1) ** 2)))
 
+#Where node is a Node object and goal is vertices
+def optimalHeuristic(node, closed):
+    D,D2 = 3,3
+    nX, nY = node.position
+    for n in getNeighborsA(node, closed):
+        if n not in closed:
+            mX, mY = n
+            if matrix[mX][mY] != "0":
+                suc = Node(node, n)
+                nodeCost = getCostA(matrix, node, suc)
+                if mX - nX != 0 and mY - nY != 0:
+                    D2 = min(D2,nodeCost)
+                else:
+                    D = min(D,nodeCost)
+    return D * (nX + nY) + (D2 - 2 * D) * min(nX, nY)
+
+
+    return
 
 # Move in a specified direciton
 def move(matrix, dir):
@@ -132,11 +149,13 @@ def A(matrix, start, goal, weight, H):
                     if matrix[mX][mY] != "0":
                         suc = Node(node, x)
                         suc.W = weight
-                        if H:
+                        nodeCost = getCostA(matrix, node, suc)
+                        if H == "D":
+                            suc.H = optimalHeuristic(suc, closed)
+                        elif H == "N":
                             suc.H = math.trunc(distance((suc.position, goal)))
                         if suc not in fringe:
                             suc.G = sys.maxsize
-                        nodeCost = getCostA(matrix, node, suc)
                         if node.G + nodeCost < suc.G:
                             suc.G = node.G + nodeCost
                             suc.parentNode = node
@@ -436,19 +455,23 @@ print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
 
 """
 UCS, aStar, aWeighted = [], [], []
-for i in range(0, 5):
+for i in range(0,1):
     pUCS, pStar, pWeighted = [], [], []
     matrix = buildGrid()
+    matrix = np.array(matrix)
+    np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+    with open("Map" + str(i+1) + ".txt", 'w') as f:
+        f.write(np.array2string(matrix, separator=', '))
     for j in range(0, 10):
         vertices = generateVertex(matrix)
         startPoint = vertices[0]
         endPoint = vertices[1]
-        pUCS.append(A(matrix, startPoint, endPoint, 1, False))
-        pStar.append(A(matrix, startPoint, endPoint, 1, True))
+        pUCS.append(A(matrix, startPoint, endPoint, 1, "F"))
+        pStar.append(A(matrix, startPoint, endPoint, 1, "N"))
         if j < 5:
-            pWeighted.append(A(matrix, startPoint, endPoint, 1.25, True))
+            pWeighted.append(A(matrix, startPoint, endPoint, 1.25, "N"))
         else:
-            pWeighted.append(A(matrix, startPoint, endPoint, 2, True))
+            pWeighted.append(A(matrix, startPoint, endPoint, 2, "N"))
     UCS.append(pUCS)
     aStar.append(pStar)
     aWeighted.append(pWeighted)
@@ -476,6 +499,4 @@ print("Weighted A* with 1.25 " + str(AverageWL) + " Len: " + str(WLenL) + " Mem:
 print("Weighted A* with 2: " + str(AverageWR) + " Len: " + str(WLenR) + " Mem: " + str(MemoryWR) + " Nodes: " + str(ExpandedWR))
 print("Total Weighted A* " + str(WAverage) + " Len: " + str(LenW)+ " Mem: " + str(MemoryW) + " Nodes: " + str(ExpandedW))
 
-"""np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-    with open("Map"+str(i)+".txt", 'w') as f:
-        f.write(np.array2string(matrix, separator=', '))"""
+
