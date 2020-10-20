@@ -452,7 +452,6 @@ path, cost = A(matrix,startPoint,endPoint,1, False)
 visalize(matrix, path ,startPoint,endPoint)
 print(path)
 print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in matrix]))
-
 """
 UCS, aStar, aWeighted = [], [], []
 for i in range(0,1):
@@ -467,11 +466,11 @@ for i in range(0,1):
         startPoint = vertices[0]
         endPoint = vertices[1]
         pUCS.append(A(matrix, startPoint, endPoint, 1, "F"))
-        pStar.append(A(matrix, startPoint, endPoint, 1, "N"))
+        pStar.append(A(matrix, startPoint, endPoint, 1, "D"))
         if j < 5:
-            pWeighted.append(A(matrix, startPoint, endPoint, 1.25, "N"))
+            pWeighted.append(A(matrix, startPoint, endPoint, 1.25, "D"))
         else:
-            pWeighted.append(A(matrix, startPoint, endPoint, 2, "N"))
+            pWeighted.append(A(matrix, startPoint, endPoint, 2, "D"))
     UCS.append(pUCS)
     aStar.append(pStar)
     aWeighted.append(pWeighted)

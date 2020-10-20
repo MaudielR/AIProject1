@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 
-class Node():   ``
+class Node():
 
     def __init__(self, parentNode: (), position: ()):
         self.parentNode = parentNode
