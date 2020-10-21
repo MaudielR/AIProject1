@@ -1,6 +1,7 @@
 import math
 import random
 import sys
+<<<<<<< HEAD
 from gridRay import Node, buildGrid,buildPath,buildBlocks,buildHard,buildPathHelper,getNeighborsA,getInfo,getCostA,getSplitInfo,generateVertex,getListTotal,move,distance
 import numpy as np
 
@@ -12,14 +13,33 @@ def optimalHeuristic(node, closed, goal):
     gX, gY = goal
     dX = abs(nX-gX)
     dY = abs(nY-gY)
+=======
+from grid import Node, buildGrid, buildPath, buildBlocks, buildHard, buildPathHelper, getNeighborsA, getInfo, \
+    getCostA, getSplitInfo, generateVertex, getListTotal, move, distance
+import numpy as np
+
+
+# Where node is a Node object and goal is vertices
+def optimalHeuristic(node, closed, goal):
+    D = 3
+    nX, nY = node.position
+    gX, gY = goal
+    dX = abs(nX - gX)
+    dY = abs(nY - gY)
+>>>>>>> b64af6e9d828e0f659b7d4050091d27fd30b33b8
     for n in getNeighborsA(node, closed):
         if n not in closed:
             mX, mY = n
             if matrix[mX][mY] != "0":
                 suc = Node(node, n)
                 nodeCost = getCostA(matrix, node, suc)
+<<<<<<< HEAD
                 D = min(D,nodeCost)
     return D * (dX+dY)
+=======
+                D = min(D, nodeCost)
+    return D * (dX + dY)
+>>>>>>> b64af6e9d828e0f659b7d4050091d27fd30b33b8
 
 
 def A(matrix, start, goal, weight, H):
@@ -66,13 +86,23 @@ def A(matrix, start, goal, weight, H):
                             fringe.append(suc)
     return None
 
+<<<<<<< HEAD
 UCS, aStar, aWeighted = [], [], []
 for i in range(0,5):
+=======
+
+UCS, aStar, aWeighted = [], [], []
+for i in range(0, 5):
+>>>>>>> b64af6e9d828e0f659b7d4050091d27fd30b33b8
     pUCS, pStar, pWeighted = [], [], []
     matrix = buildGrid()
     matrix = np.array(matrix)
     np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+<<<<<<< HEAD
     with open("Map" + str(i+1) + ".txt", 'w') as f:
+=======
+    with open("Map" + str(i + 1) + ".txt", 'w') as f:
+>>>>>>> b64af6e9d828e0f659b7d4050091d27fd30b33b8
         f.write(np.array2string(matrix, separator=', '))
     for j in range(0, 10):
         vertices = generateVertex(matrix)
@@ -91,6 +121,7 @@ for i in range(0,5):
 # Average Cost and length
 AverageUCS, UCSLen, MemoryUCS, ExpandedUCS = getInfo(UCS)
 AverageA, ALen, MemoryA, ExpandedA = getInfo(aStar)
+<<<<<<< HEAD
 AverageWL, WLenL, MemoryWL,ExpandedWL, AverageWR, WLenR, MemoryWR, ExpandedWR = getSplitInfo(aWeighted)
 print("UCS " + str(AverageUCS) + " Len: " + str(UCSLen) + " Mem: " + str(MemoryUCS) + " Nodes: " + str(ExpandedUCS))
 print("A* " + str(AverageA) + " Len: " + str(ALen)+ " Mem: " + str(MemoryA) + " Nodes: " + str(ExpandedA))
@@ -109,3 +140,32 @@ print("A* " + str(AverageA) + " Len: " + str(ALen)+ " Mem: " + str(MemoryA) + " 
 print("Weighted A* with 1.25 " + str(AverageWL) + " Len: " + str(WLenL) + " Mem: " + str(MemoryWL) + " Nodes: " + str(ExpandedWL))
 print("Weighted A* with 2: " + str(AverageWR) + " Len: " + str(WLenR) + " Mem: " + str(MemoryWR) + " Nodes: " + str(ExpandedWR))
 print("Total Weighted A* " + str(WAverage) + " Len: " + str(LenW)+ " Mem: " + str(MemoryW) + " Nodes: " + str(ExpandedW))
+=======
+AverageWL, WLenL, MemoryWL, ExpandedWL, AverageWR, WLenR, MemoryWR, ExpandedWR = getSplitInfo(aWeighted)
+print("UCS " + str(AverageUCS) + " Len: " + str(UCSLen) + " Mem: " + str(MemoryUCS) + " Nodes: " + str(ExpandedUCS))
+print("A* " + str(AverageA) + " Len: " + str(ALen) + " Mem: " + str(MemoryA) + " Nodes: " + str(ExpandedA))
+print("Weighted A* with 1.25:  " + str(AverageWL) + " Len: " + str(WLenL) + " Mem: " + str(MemoryWL) + " Nodes: " + str(
+    ExpandedWL))
+print("Weighted A* with 2:  " + str(AverageWR) + " Len: " + str(WLenR) + " Mem: " + str(MemoryWR) + " Nodes: " + str(
+    ExpandedWR))
+AverageUCS, UCSLen, MemoryUCS, ExpandedUCS = getListTotal(AverageUCS) / 5, getListTotal(UCSLen) / 5, getListTotal(
+    MemoryUCS) / 5, getListTotal(ExpandedUCS) / 5
+AverageA, ALen, MemoryA, ExpandedA = getListTotal(AverageA) / 5, getListTotal(ALen) / 5, getListTotal(
+    MemoryA) / 5, getListTotal(ExpandedA) / 5
+AverageWL, WLenL, MemoryWL, ExpandedWL = getListTotal(AverageWL) / 5, getListTotal(WLenL) / 5, getListTotal(
+    MemoryWL) / 5, getListTotal(ExpandedWL) / 5
+AverageWR, WLenR, MemoryWR, ExpandedWR = getListTotal(AverageWR) / 5, getListTotal(WLenR) / 5, getListTotal(
+    MemoryWR) / 5, getListTotal(ExpandedWR) / 5
+WAverage = (AverageWL + AverageWR) / 2
+LenW = (WLenL + WLenR) / 2
+MemoryW = (MemoryWL + MemoryWR) / 2
+ExpandedW = (ExpandedWL + ExpandedWR) / 2
+print("UCS " + str(AverageUCS) + " Len: " + str(UCSLen) + " Mem: " + str(MemoryUCS) + " Nodes: " + str(ExpandedUCS))
+print("A* " + str(AverageA) + " Len: " + str(ALen) + " Mem: " + str(MemoryA) + " Nodes: " + str(ExpandedA))
+print("Weighted A* with 1.25 " + str(AverageWL) + " Len: " + str(WLenL) + " Mem: " + str(MemoryWL) + " Nodes: " + str(
+    ExpandedWL))
+print("Weighted A* with 2: " + str(AverageWR) + " Len: " + str(WLenR) + " Mem: " + str(MemoryWR) + " Nodes: " + str(
+    ExpandedWR))
+print(
+    "Total Weighted A* " + str(WAverage) + " Len: " + str(LenW) + " Mem: " + str(MemoryW) + " Nodes: " + str(ExpandedW))
+>>>>>>> b64af6e9d828e0f659b7d4050091d27fd30b33b8
